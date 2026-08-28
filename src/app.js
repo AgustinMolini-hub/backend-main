@@ -1,7 +1,8 @@
-import express from 'express';
+﻿import express from 'express';
 import productRouter from './routes/product.routes.js';
 import userRouter from './routes/user.routes.js';
 import mockRouter from './routes/mock.routes.js';
+import { errorMiddleware } from './middlewares/error.middleware.js';
 
 const app = express();
 
@@ -18,5 +19,7 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
+
+app.use(errorMiddleware);
 
 export default app;

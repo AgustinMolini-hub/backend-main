@@ -1,84 +1,63 @@
-import { MockService } from '../services/mock.service.js';
+﻿import { MockService } from '../services/mock.service.js';
 
 const mockService = new MockService();
 
 export class MockController {
-    static getUsers(req, res) {
+    static getUsers(req, res, next) {
         try {
-            const quantity = Number(req.query.qty) || 1;
+            const quantity = req.query.qty === undefined
+                ? 1
+                : Number(req.query.qty);
 
-            if (quantity < 1 || quantity > 100) {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'qty debe ser un número entre 1 y 100.'
-                });
-            }
+            mockService.validateQuantity(quantity);
 
             const users = mockService.generateUsers(quantity);
 
             return res.status(200).json(users);
         } catch (error) {
-            return res.status(500).json({
-                status: 'error',
-                message: error.message
-            });
+            next(error);
         }
     }
 
-    static getDrivers(req, res) {
+    static getDrivers(req, res, next) {
         try {
-            const quantity = Number(req.query.qty) || 1;
+            const quantity = req.query.qty === undefined
+                ? 1
+                : Number(req.query.qty);
 
-            if (quantity < 1 || quantity > 100) {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'qty debe ser un número entre 1 y 100.'
-                });
-            }
+            mockService.validateQuantity(quantity);
 
             const drivers = mockService.generateDrivers(quantity);
 
             return res.status(200).json(drivers);
         } catch (error) {
-            return res.status(500).json({
-                status: 'error',
-                message: error.message
-            });
+            next(error);
         }
     }
 
-    static getAll(req, res) {
+    static getAll(req, res, next) {
         try {
-            const quantity = Number(req.query.qty) || 1;
+            const quantity = req.query.qty === undefined
+                ? 1
+                : Number(req.query.qty);
 
-            if (quantity < 1 || quantity > 100) {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'qty debe ser un número entre 1 y 100.'
-                });
-            }
+            mockService.validateQuantity(quantity);
 
             const data = mockService.generateMockData(quantity);
 
             return res.status(200).json(data);
         } catch (error) {
-            return res.status(500).json({
-                status: 'error',
-                message: error.message
-            });
+            next(error);
         }
     }
 
-    static async seed(req, res) {
+    static async seed(req, res, next) {
         try {
-            const quantity = Number(req.query.qty) || 1;
+            const quantity = req.query.qty === undefined
+                ? 1
+                : Number(req.query.qty);
 
-            if (quantity < 1 || quantity > 100) {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'qty debe ser un número entre 1 y 100.'
-                });
-            }
+            mockService.validateQuantity(quantity);
 
             const result = await mockService.seed(quantity);
 
@@ -88,10 +67,7 @@ export class MockController {
                 ...result
             });
         } catch (error) {
-            return res.status(500).json({
-                status: 'error',
-                message: error.message
-            });
+            next(error);
         }
     }
 }

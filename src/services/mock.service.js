@@ -1,4 +1,4 @@
-import {
+﻿import {
     ROLES,
     ORDER_STATUS,
     ORDER_PRIORITY,
@@ -6,10 +6,29 @@ import {
 } from '../constants/index.js';
 
 import { MockRepository } from '../repositories/mock.repository.js';
+import { AppError } from '../errors/app.error.js';
 
 export class MockService {
     constructor() {
         this.mockRepository = new MockRepository();
+    }
+
+    validateQuantity(quantity) {
+        if (typeof quantity !== 'number' || Number.isNaN(quantity)) {
+            throw new AppError('INVALID_MOCK_QUANTITY');
+        }
+
+        if (quantity < 0) {
+            throw new AppError('NEGATIVE_MOCK_QUANTITY');
+        }
+
+        if (!Number.isInteger(quantity) || quantity === 0) {
+            throw new AppError('INVALID_MOCK_QUANTITY');
+        }
+
+        if (quantity > 100) {
+            throw new AppError('MAX_MOCK_QUANTITY');
+        }
     }
 
     generateUsers(quantity) {
@@ -49,10 +68,12 @@ export class MockService {
     }
 
     generateMockData(quantity) {
+        this.validateQuantity(quantity);
+
         const users = this.generateUsers(quantity);
         const drivers = this.generateDrivers(quantity);
 
-        const orders = users.map((user, index) => ({
+        const orders = users.map(user => ({
             _id: this.generateMockId(),
             user: user._id,
             status: ORDER_STATUS.PENDING,
@@ -78,64 +99,73 @@ export class MockService {
     }
 
     async seed(quantity) {
-        const users = this.generateUsers(quantity);
+        this.validateQuantity(quantity);
 
-        const drivers = this.generateDrivers(
-            Math.max(1, Math.ceil(quantity / 2))
-        );
+        try {
+            const users = this.generateUsers(quantity);
 
-        // Quitamos los IDs ficticios antes de guardar en MongoDB.
-        const usersToInsert = users.map(({ _id, ...user }) => user);
-        const driversToInsert = drivers.map(({ _id, ...driver }) => driver);
-
-        const createdUsers =
-            await this.mockRepository.createUsers([
-                ...usersToInsert,
-                ...driversToInsert
-            ]);
-
-        const createdCustomers = createdUsers.filter(
-            user => user.role === ROLES.USER
-        );
-
-        const createdDrivers = createdUsers.filter(
-            user => user.role === ROLES.DRIVER
-        );
-
-        const ordersData = createdCustomers.map(user => ({
-            user: user._id,
-            status: ORDER_STATUS.PENDING,
-            priority: ORDER_PRIORITY.MEDIUM,
-            total: Number(
-                (Math.random() * 100000 + 1000).toFixed(2)
-            )
-        }));
-
-        const createdOrders =
-            await this.mockRepository.createOrders(
-                ordersData
+            const drivers = this.generateDrivers(
+                Math.max(1, Math.ceil(quantity / 2))
             );
 
-        const deliveriesData = createdOrders.map(
-            (order, index) => ({
-                order: order._id,
-                driver: createdDrivers[
-                    index % createdDrivers.length
-                ]._id,
-                status: DELIVERY_STATUS.ASSIGNED
-            })
-        );
+            const usersToInsert = users.map(({ _id, ...user }) => user);
+            const driversToInsert = drivers.map(({ _id, ...driver }) => driver);
 
-        const createdDeliveries =
-            await this.mockRepository.createDeliveries(
-                deliveriesData
+            const createdUsers =
+                await this.mockRepository.createUsers([
+                    ...usersToInsert,
+                    ...driversToInsert
+                ]);
+
+            const createdCustomers = createdUsers.filter(
+                user => user.role === ROLES.USER
             );
 
-        return {
-            users: createdCustomers.length,
-            drivers: createdDrivers.length,
-            orders: createdOrders.length,
-            deliveries: createdDeliveries.length
-        };
+            const createdDrivers = createdUsers.filter(
+                user => user.role === ROLES.DRIVER
+            );
+
+            const ordersData = createdCustomers.map(user => ({
+                user: user._id,
+                status: ORDER_STATUS.PENDING,
+                priority: ORDER_PRIORITY.MEDIUM,
+                total: Number(
+                    (Math.random() * 100000 + 1000).toFixed(2)
+                )
+            }));
+
+            const createdOrders =
+                await this.mockRepository.createOrders(ordersData);
+
+            const deliveriesData = createdOrders.map(
+                (order, index) => ({
+                    order: order._id,
+                    driver: createdDrivers[
+                        index % createdDrivers.length
+                    ]._id,
+                    status: DELIVERY_STATUS.ASSIGNED
+                })
+            );
+
+            const createdDeliveries =
+                await this.mockRepository.createDeliveries(
+                    deliveriesData
+                );
+
+            return {
+                users: createdCustomers.length,
+                drivers: createdDrivers.length,
+                orders: createdOrders.length,
+                deliveries: createdDeliveries.length
+            };
+
+        } catch (error) {
+            console.error('Error durante seed de mocks:', error);
+
+            throw new AppError(
+                'MOCK_SEED_ERROR',
+                error.message
+            );
+        }
     }
 }

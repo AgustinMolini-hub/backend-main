@@ -1,5 +1,6 @@
-import { UserRepository } from '../repositories/user.repository.js';
+﻿import { UserRepository } from '../repositories/user.repository.js';
 import { ROLES } from '../constants/index.js';
+import { AppError } from '../errors/app.error.js';
 
 export class UserService {
   constructor() {
@@ -12,15 +13,20 @@ export class UserService {
 
   async registerUser(data) {
     if (!data.email || !data.name) {
-      throw new Error('El nombre y el email son obligatorios.');
+      throw new AppError('INVALID_USER_DATA');
     }
 
     const existingUser = await this.userRepo.getByEmail(data.email);
+
     if (existingUser) {
-      throw new Error('Ya existe un usuario registrado con este email.');
+      throw new AppError('USER_ALREADY_EXISTS', {
+        email: data.email
+      });
     }
 
-    const role = Object.values(ROLES).includes(data.role) ? data.role : ROLES.USER;
+    const role = Object.values(ROLES).includes(data.role)
+      ? data.role
+      : ROLES.USER;
 
     return await this.userRepo.create({
       ...data,
