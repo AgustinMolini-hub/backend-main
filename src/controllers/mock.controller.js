@@ -1,4 +1,5 @@
 ﻿import { MockService } from '../services/mock.service.js';
+import logger from '../config/logger.js';
 
 const mockService = new MockService();
 
@@ -69,5 +70,19 @@ export class MockController {
         } catch (error) {
             next(error);
         }
+    }
+
+    static testLogger(req, res) {
+        logger.debug('Prueba de logger - nivel DEBUG');
+        logger.http('Prueba de logger - nivel HTTP');
+        logger.info('Prueba de logger - nivel INFO');
+        logger.warning('Prueba de logger - nivel WARNING');
+        logger.error('Prueba de logger - nivel ERROR');
+        logger.fatal('Prueba de logger - nivel FATAL');
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Prueba de logger ejecutada correctamente.'
+        });
     }
 }

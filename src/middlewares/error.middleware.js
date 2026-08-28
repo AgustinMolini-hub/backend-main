@@ -1,23 +1,35 @@
 ﻿import { AppError } from '../errors/app.error.js';
 import { ERROR_DICTIONARY } from '../errors/error.dictionary.js';
+import logger from '../config/logger.js';
 
 export const errorMiddleware = (err, req, res, next) => {
-    console.error(err);
+    const errorCode = err instanceof AppError
+        ? err.errorCode
+        : 'INTERNAL_SERVER_ERROR';
 
-    if (err instanceof AppError) {
-        const error = ERROR_DICTIONARY[err.errorCode];
+    const errorDefinition = ERROR_DICTIONARY[errorCode];
 
-        if (error) {
-            return res.status(error.statusCode).json({
-                status: 'error',
-                error: {
-                    code: err.errorCode,
-                    message: error.message,
-                    details: err.details
-                }
-            });
-        }
+    if (err instanceof AppError && errorDefinition) {
+        logger.warning(
+            `${req.method} ${req.originalUrl} - ${errorCode}: ${errorDefinition.message}`
+        );
+
+        return res.status(errorDefinition.statusCode).json({
+            status: 'error',
+            error: {
+                code: errorCode,
+                message: errorDefinition.message,
+                details: err.details
+            }
+        });
     }
+
+    logger.error(
+        `${req.method} ${req.originalUrl} - Error inesperado: ${err.message}`,
+        {
+            stack: err.stack
+        }
+    );
 
     return res.status(500).json({
         status: 'error',

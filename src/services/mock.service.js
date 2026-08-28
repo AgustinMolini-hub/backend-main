@@ -7,6 +7,7 @@
 
 import { MockRepository } from '../repositories/mock.repository.js';
 import { AppError } from '../errors/app.error.js';
+import logger from '../config/logger.js';
 
 export class MockService {
     constructor() {
@@ -15,18 +16,34 @@ export class MockService {
 
     validateQuantity(quantity) {
         if (typeof quantity !== 'number' || Number.isNaN(quantity)) {
+            logger.warning(
+                `Cantidad de mocks inválida: ${quantity}`
+            );
+
             throw new AppError('INVALID_MOCK_QUANTITY');
         }
 
         if (quantity < 0) {
+            logger.warning(
+                `Cantidad de mocks negativa: ${quantity}`
+            );
+
             throw new AppError('NEGATIVE_MOCK_QUANTITY');
         }
 
         if (!Number.isInteger(quantity) || quantity === 0) {
+            logger.warning(
+                `Cantidad de mocks inválida: ${quantity}`
+            );
+
             throw new AppError('INVALID_MOCK_QUANTITY');
         }
 
         if (quantity > 100) {
+            logger.warning(
+                `Cantidad de mocks excede el máximo permitido: ${quantity}`
+            );
+
             throw new AppError('MAX_MOCK_QUANTITY');
         }
     }
@@ -43,6 +60,10 @@ export class MockService {
             });
         }
 
+        logger.debug(
+            `Generados ${users.length} usuarios mock`
+        );
+
         return users;
     }
 
@@ -58,6 +79,10 @@ export class MockService {
             });
         }
 
+        logger.debug(
+            `Generados ${drivers.length} repartidores mock`
+        );
+
         return drivers;
     }
 
@@ -69,6 +94,10 @@ export class MockService {
 
     generateMockData(quantity) {
         this.validateQuantity(quantity);
+
+        logger.debug(
+            `Generando conjunto completo de datos mock. Cantidad: ${quantity}`
+        );
 
         const users = this.generateUsers(quantity);
         const drivers = this.generateDrivers(quantity);
@@ -100,6 +129,10 @@ export class MockService {
 
     async seed(quantity) {
         this.validateQuantity(quantity);
+
+        logger.info(
+            `Iniciando seed de mocks. Cantidad solicitada: ${quantity}`
+        );
 
         try {
             const users = this.generateUsers(quantity);
@@ -152,15 +185,26 @@ export class MockService {
                     deliveriesData
                 );
 
-            return {
+            const result = {
                 users: createdCustomers.length,
                 drivers: createdDrivers.length,
                 orders: createdOrders.length,
                 deliveries: createdDeliveries.length
             };
 
+            logger.info(
+                `Seed de mocks completado correctamente: ${JSON.stringify(result)}`
+            );
+
+            return result;
+
         } catch (error) {
-            console.error('Error durante seed de mocks:', error);
+            logger.error(
+                `Error durante seed de mocks: ${error.message}`,
+                {
+                    stack: error.stack
+                }
+            );
 
             throw new AppError(
                 'MOCK_SEED_ERROR',
