@@ -1,55 +1,247 @@
-# ShipNow API
+# ShipNow Backend
 
-API REST de **ShipNow** desarrollada con **Node.js, Express y MongoDB**, utilizando una arquitectura por capas para separar responsabilidades y facilitar el mantenimiento del proyecto.
+Backend REST API para **ShipNow**, desarrollado con Node.js, Express y MongoDB mediante Mongoose.
 
-Arquitectura principal:
+El proyecto implementa una arquitectura organizada por capas, manejo centralizado de errores, validaciones, documentación con Swagger, generación de datos mock y pruebas automatizadas con Mocha, Chai y Supertest.
 
-```text
-Controller
-    ↓
-Service
-    ↓
-Repository
-    ↓
-Model
-    ↓
-MongoDB
+---
 
-Tecnologías
-Node.js
-Express
-MongoDB
+## Tecnologías
+
+- Node.js
+- Express
+- MongoDB Atlas
+- Mongoose
+- Mocha
+- Chai
+- Supertest
+- Swagger / OpenAPI
+- dotenv
+- cross-env
+- Morgan / Logger personalizado
+- ES Modules
+
+---
+
+## Requisitos
+
+Antes de ejecutar el proyecto se necesita tener instalado:
+
+- Node.js
+- npm
+- Una cuenta de MongoDB Atlas
+
+No es necesario tener MongoDB instalado localmente, ya que el proyecto utiliza MongoDB Atlas.
+
+Para comprobar Node.js:
+
+```bash
+node --version
+
+Para comprobar npm:
+
+npm --version
+
+Instalación
+Clonar el repositorio:
+
+git clone <URL_DEL_REPOSITORIO>
+
+Ingresar al proyecto:
+
+cd backend-main
+
+Instalar dependencias:
+
+npm install
+
+Variables de entorno
+El proyecto utiliza diferentes archivos .env según el entorno.
+
+Desarrollo
+Crear un archivo:
+
+.env
+
+Ejemplo:
+
+PORT=8080
+MONGODB_URI=mongodb+srv://USUARIO:PASSWORD@cluster0.xxxxx.mongodb.net/shipnow_db?retryWrites=true&w=majority
+NODE_ENV=development
+
+Reemplazar:
+
+USUARIO
+PASSWORD
+
+por las credenciales correspondientes de MongoDB Atlas.
+
+Testing
+Crear:
+
+.env.test
+
+Ejemplo:
+
+PORT=8081
+MONGODB_URI=mongodb+srv://USUARIO:PASSWORD@cluster0.xxxxx.mongodb.net/shipnow_test?retryWrites=true&w=majority
+NODE_ENV=test
+
+Se recomienda utilizar una base de datos independiente para los tests:
+
+shipnow_test
+
+De esta manera los tests no modifican la base de datos utilizada por desarrollo.
+
+Seguridad
+Los archivos .env y .env.test contienen información sensible y no deben subirse al repositorio.
+
+El .gitignore debe incluir:
+
+node_modules/
+.env
+.env.test
+
+Nunca publicar:
+
+Contraseñas de MongoDB
+Usuarios de MongoDB Atlas
+Connection strings reales
+API keys
+Tokens
+Credenciales
+MongoDB Atlas
+El proyecto utiliza MongoDB Atlas como base de datos.
+
+La conexión se realiza mediante:
+
+MONGODB_URI
+
+Ejemplo:
+
+mongodb+srv://USUARIO:PASSWORD@cluster0.xxxxx.mongodb.net/shipnow_db
+
+La conexión está centralizada en:
+
+src/config/database.js
+
+La función principal es:
+
+connectDB()
+
+Cuando la conexión es exitosa se registra:
+
+Conexión a MongoDB establecida
+
+Si la conexión falla, el error es registrado y propagado para detener correctamente el proceso de inicio.
+
+Configuración de entorno
+La configuración se encuentra en:
+
+src/config/env.config.js
+
+El proyecto determina automáticamente qué archivo utilizar:
+
+const envFile = process.env.NODE_ENV === 'test'
+    ? '.env.test'
+    : '.env';
+
+Variables obligatorias:
+
+PORT
+MONGODB_URI
+NODE_ENV
+
+Si falta alguna variable requerida, la aplicación genera un error de configuración.
+
+Ejecución
+Desarrollo
+Ejecutar:
+
+npm run dev
+
+El proyecto utiliza Node.js Watch Mode:
+
+node --watch src/server.js
+
+Por defecto, el servidor se inicia en:
+
+http://localhost:8080
+
+Si la conexión con MongoDB es correcta se mostrará:
+
+Conexión a MongoDB establecida
+Servidor ShipNow escuchando en el puerto 8080 en modo development
+
+Producción
+Ejecutar:
+
+npm start
+
+La configuración exacta depende del script definido en package.json.
+
+Tests
+Los tests están desarrollados utilizando:
+
+Mocha
+Chai
+Supertest
 Mongoose
-dotenv
-Winston
-winston-daily-rotate-file
-Swagger / OpenAPI
-swagger-jsdoc
-swagger-ui-express
-Características principales
-El proyecto incluye:
+Ejecutar todos los tests:
 
-Arquitectura por capas.
-Controllers.
-Services.
-Repositories.
-Models de Mongoose.
-Configuración mediante variables de entorno.
-Constantes de dominio.
-Manejo centralizado de errores.
-Sistema de mocking.
-Generación de usuarios simulados.
-Generación de repartidores simulados.
-Generación de pedidos y entregas relacionadas.
-Carga de datos mock en MongoDB.
-Sistema centralizado de logging con Winston.
-Persistencia de errores en archivos.
-Rotación automática de archivos de logs.
-Endpoint de prueba del logger.
-Documentación de la API mediante Swagger.
-Swagger UI disponible desde /api/docs.
-.gitignore configurado para evitar subir credenciales, dependencias y logs.
-Arquitectura del proyecto
+npm test
+
+Actualmente el proyecto cuenta con:
+
+18 passing
+
+Los tests verifican:
+
+Health check
+Usuarios
+Pedidos
+Creación de usuarios
+Creación de pedidos
+Validaciones
+Recursos inexistentes
+Actualización de estados
+Manejo de errores
+Persistencia en MongoDB
+Configuración global de tests
+La configuración compartida se encuentra en:
+
+test/setup.js
+
+Este archivo se encarga de:
+
+Establecer la conexión con MongoDB antes de ejecutar los tests.
+Reutilizar la conexión existente.
+Eliminar la base de datos de testing al finalizar.
+Cerrar la conexión de Mongoose.
+El script de tests utiliza:
+
+mocha test/setup.js test/**/*.test.js --exit
+
+Esto evita que cada archivo de test cree y cierre su propia conexión a MongoDB.
+
+Arquitectura
+El proyecto utiliza una arquitectura por capas:
+
+src/
+├── config/
+├── constants/
+├── controllers/
+├── docs/
+├── errors/
+├── middlewares/
+├── models/
+├── repositories/
+├── routes/
+├── services/
+├── app.js
+└── server.js
+
+Estructura del proyecto
 backend-main/
 │
 ├── src/
@@ -63,6 +255,7 @@ backend-main/
 │   │   └── index.js
 │   │
 │   ├── controllers/
+│   │   ├── order.controller.js
 │   │   ├── product.controller.js
 │   │   ├── user.controller.js
 │   │   └── mock.controller.js
@@ -78,203 +271,145 @@ backend-main/
 │   │   └── error.middleware.js
 │   │
 │   ├── models/
+│   │   ├── order.model.js
 │   │   ├── product.model.js
 │   │   ├── user.model.js
-│   │   ├── order.model.js
 │   │   └── delivery.model.js
 │   │
 │   ├── repositories/
+│   │   ├── mock.repository.js
+│   │   ├── order.repository.js
 │   │   ├── product.repository.js
-│   │   ├── user.repository.js
-│   │   └── mock.repository.js
+│   │   └── user.repository.js
 │   │
 │   ├── routes/
+│   │   ├── mock.routes.js
+│   │   ├── order.routes.js
 │   │   ├── product.routes.js
-│   │   ├── user.routes.js
-│   │   └── mock.routes.js
+│   │   └── user.routes.js
 │   │
 │   ├── services/
+│   │   ├── mock.service.js
+│   │   ├── order.service.js
 │   │   ├── product.service.js
-│   │   ├── user.service.js
-│   │   └── mock.service.js
+│   │   └── user.service.js
 │   │
 │   ├── app.js
 │   └── server.js
 │
-├── logs/
+├── test/
+│   ├── setup.js
+│   ├── health.test.js
+│   ├── order.test.js
+│   └── user.test.js
+│
 ├── .env
-├── .env.example
+├── .env.test
 ├── .gitignore
-├── package.json
 ├── package-lock.json
+├── package.json
 └── README.md
 
 Arquitectura por capas
-Controller
-Los Controllers gestionan las solicitudes HTTP y las respuestas.
+Routes
+Las rutas definen los endpoints HTTP disponibles.
 
-No acceden directamente a MongoDB.
+Ejemplo:
 
-Delegan la lógica de negocio en los Services.
+src/routes/user.routes.js
 
-HTTP Request
-     ↓
-Controller
-     ↓
-Service
+Las rutas delegan la operación al controller correspondiente.
 
-Service
-Los Services contienen la lógica de negocio de la aplicación.
+Controllers
+Los controllers reciben las solicitudes HTTP y devuelven las respuestas.
 
-Se encargan de tareas como:
+Ejemplo:
 
-Validación de datos.
-Validación de cantidades.
-Determinación de estados.
-Generación de datos mock.
-Relaciones entre usuarios, pedidos y entregas.
-Procesos de seed.
-Los Services utilizan los Repositories para acceder a los datos.
+src/controllers/user.controller.js
 
-Controller
-     ↓
-Service
-     ↓
-Repository
+Responsabilidades:
 
-Repository
-Los Repositories son responsables de las operaciones de persistencia.
+Recibir req
+Procesar la solicitud
+Invocar al service
+Construir la respuesta HTTP
+Propagar errores
+Services
+Los services contienen la lógica de negocio.
 
-Son la capa que interactúa con los modelos de Mongoose.
+Ejemplo:
 
-ProductRepository
-       ↓
+src/services/user.service.js
+
+Responsabilidades:
+
+Validaciones de negocio
+Reglas de creación
+Comprobación de duplicados
+Asignación de valores por defecto
+Comunicación con repositories
+Repositories
+Los repositories abstraen el acceso a MongoDB.
+
+Ejemplo:
+
+src/repositories/user.repository.js
+
+Permiten separar la lógica de negocio de la persistencia.
+
+Models
+Los modelos representan las colecciones de MongoDB mediante Mongoose.
+
+Ejemplos:
+
+UserModel
 ProductModel
-       ↓
-MongoDB
+OrderModel
+DeliveryModel
 
-Model
-Los Models de Mongoose definen los esquemas de las entidades almacenadas en MongoDB.
-
-Actualmente existen modelos para:
-
-User
-Product
-Order
-Delivery
-Configuración de entorno
-Las variables de entorno se centralizan en:
-
-src/config/env.config.js
-
-Variables principales:
-
-PORT=
-MONGODB_URI=
-NODE_ENV=
-
-El archivo .env no debe subirse al repositorio porque puede contener información sensible.
-
-El repositorio debe contener:
-
-.env.example
-
-sin credenciales reales.
-
-Instalación
-Acceder a la carpeta del proyecto:
-
-cd backend-main
-
-Instalar las dependencias:
-
-npm install
-
-Crear el archivo .env utilizando .env.example.
-
-En PowerShell:
-
-Copy-Item .env.example .env
-
-Completar las variables de entorno correspondientes.
-
-Ejecución
-Para ejecutar el proyecto en modo desarrollo:
-
-npm run dev
-
-El proyecto utiliza Node.js con --watch, por lo que los cambios realizados durante el desarrollo pueden provocar el reinicio automático del servidor.
-
-Para ejecutar la aplicación normalmente:
-
-npm start
-
-Por defecto, la API se ejecuta en:
+API
+Base URL:
 
 http://localhost:8080
 
 Health Check
-La aplicación dispone de un endpoint para verificar que el servidor está funcionando correctamente.
+GET /health
+Permite comprobar que el servidor está funcionando.
+
+Request:
 
 GET /health
 
-URL:
-
-http://localhost:8080/health
-
-Respuesta esperada:
+Response:
 
 {
   "status": "ok",
-  "timestamp": "2026-08-28T20:00:00.000Z"
+  "timestamp": "2026-08-28T18:00:00.000Z"
 }
 
-Documentación Swagger
-La API está documentada utilizando:
+Código:
 
-OpenAPI 3.0.3
-swagger-jsdoc
-swagger-ui-express
-La configuración se encuentra en:
+200 OK
 
-src/docs/swagger.js
+Users API
+Base:
 
-La documentación está disponible en:
+/api/users
 
-http://localhost:8080/api/docs
-
-Swagger permite visualizar y probar los endpoints directamente desde la interfaz web.
-
-Verificar Swagger desde PowerShell
-Con el servidor ejecutándose:
-
-Invoke-WebRequest `
-  "http://localhost:8080/api/docs" `
-  -UseBasicParsing |
-  Select-Object StatusCode
-
-Respuesta esperada:
-
-StatusCode
-----------
-200
-
-Usuarios
 Obtener usuarios
 GET /api/users
 
-Devuelve todos los usuarios registrados en MongoDB.
+Response:
 
-PowerShell:
-
-Invoke-RestMethod `
-  -Uri "http://localhost:8080/api/users" `
-  -Method GET
+{
+  "status": "success",
+  "payload": []
+}
 
 Crear usuario
 POST /api/users
 
-Ejemplo:
+Body:
 
 {
   "name": "Usuario Prueba",
@@ -282,507 +417,328 @@ Ejemplo:
   "role": "USER"
 }
 
-Los roles disponibles son:
+El campo role es opcional.
+
+Roles disponibles:
 
 ADMIN
 USER
 DRIVER
 
-Si no se proporciona un rol válido, se utiliza:
+Si no se especifica un rol válido, se utiliza:
 
 USER
 
-Productos
-Obtener productos
-GET /api/products
-
-También permite filtrar productos disponibles:
-
-GET /api/products?available=true
-
-Obtener producto por ID
-GET /api/products/:id
-
-Ejemplo:
-
-GET /api/products/66b7c2f9a123456789abcdef
-
-Crear producto
-POST /api/products
-
-Ejemplo:
-
-{
-  "name": "Producto de prueba",
-  "price": 1500.50,
-  "stock": 20
-}
-
-El estado del producto se determina automáticamente según el stock.
-
-Si:
-
-stock > 0
-
-el estado será:
-
-AVAILABLE
-
-Si:
-
-stock = 0
-
-el estado será:
-
-OUT_OF_STOCK
-
-Sistema de Mocking
-El sistema de mocking permite generar datos de prueba sin necesidad de almacenarlos en MongoDB.
-
-Los endpoints se encuentran bajo:
-
-/api/mocks
-
-Arquitectura:
-
-Mock Router
-     ↓
-Mock Controller
-     ↓
-Mock Service
-     ↓
-Mock Repository
-     ↓
-MongoDB
-
-Los endpoints GET generan datos en memoria.
-
-El endpoint POST /seed permite almacenar los datos generados en MongoDB.
-
-Generar usuarios simulados
-GET /api/mocks/users
-
-Ejemplo:
-
-GET /api/mocks/users?qty=2
-
-PowerShell:
-
-Invoke-RestMethod `
-  -Uri "http://localhost:8080/api/mocks/users?qty=2" `
-  -Method GET
-
-Ejemplo de respuesta:
-
-[
-  {
-    "_id": "mock-id",
-    "name": "Usuario Mock 1",
-    "email": "usuario.mock.123@test.com",
-    "role": "USER"
-  },
-  {
-    "_id": "mock-id",
-    "name": "Usuario Mock 2",
-    "email": "usuario.mock.123@test.com",
-    "role": "USER"
-  }
-]
-
-Estos datos no se almacenan en MongoDB.
-
-Generar repartidores simulados
-GET /api/mocks/drivers
-
-Ejemplo:
-
-GET /api/mocks/drivers?qty=2
-
-PowerShell:
-
-Invoke-RestMethod `
-  -Uri "http://localhost:8080/api/mocks/drivers?qty=2" `
-  -Method GET
-
-Los repartidores utilizan el rol:
-
-DRIVER
-
-Estos datos tampoco se almacenan en MongoDB.
-
-Generar datos mock completos
-GET /api/mocks/all
-
-Ejemplo:
-
-GET /api/mocks/all?qty=3
-
-Este endpoint genera:
-
-Usuarios.
-Repartidores.
-Pedidos.
-Entregas.
-Las relaciones conceptuales son:
-
-User
-  ↓
-Order
-  ↓
-Delivery
-  ↓
-Driver
-
-Los datos se generan en memoria y no se almacenan en MongoDB.
-
-Seed de datos mock
-Para insertar datos de prueba en MongoDB:
-
-POST /api/mocks/seed
-
-Ejemplo:
-
-POST /api/mocks/seed?qty=5
-
-PowerShell:
-
-Invoke-RestMethod `
-  -Method POST `
-  "http://localhost:8080/api/mocks/seed?qty=5"
-
-Ejemplo de respuesta:
+Response:
 
 {
   "status": "success",
-  "message": "Datos de prueba insertados correctamente.",
-  "users": 5,
-  "drivers": 3,
-  "orders": 5,
-  "deliveries": 5
+  "payload": {
+    "_id": "...",
+    "name": "Usuario Prueba",
+    "email": "usuario.prueba@test.com",
+    "role": "USER"
+  }
 }
 
-El parámetro qty controla la cantidad de usuarios y pedidos generados.
+Código:
 
-La cantidad de repartidores se calcula de forma independiente para poder asociarlos a las entregas.
+201 Created
 
-Relaciones del Seed
-Cuando se ejecuta:
+Orders API
+Base:
 
-POST /api/mocks/seed
+/api/orders
 
-los datos se insertan respetando las relaciones entre las entidades.
+Obtener pedidos
+GET /api/orders
 
-User
-├── USER
-└── DRIVER
+Response:
 
-Order
-└── user → User._id
+{
+  "status": "success",
+  "payload": []
+}
 
-Delivery
-├── order → Order._id
-└── driver → User._id
+Crear pedido
+POST /api/orders
 
-Los pedidos utilizan los _id reales de los usuarios creados en MongoDB.
+Body:
 
-Las entregas utilizan los _id reales de:
+{
+  "user": "ID_DEL_USUARIO",
+  "total": 2500,
+  "priority": "HIGH"
+}
 
-Pedidos.
-Usuarios con rol DRIVER.
-Validación de cantidad de mocks
-El sistema valida el parámetro qty.
+Campos obligatorios:
 
-La cantidad debe ser:
+user
+total
 
-Un número.
-Un número entero.
-Mayor que cero.
-Menor o igual a 100.
-Valores válidos:
+Prioridades disponibles:
 
-1
-2
-5
-50
-100
+LOW
+MEDIUM
+HIGH
 
-Valores inválidos:
+El estado inicial del pedido es:
 
-0
--1
-1.5
-101
+PENDING
+
+Response:
+
+{
+  "status": "success",
+  "payload": {
+    "_id": "...",
+    "user": "...",
+    "total": 2500,
+    "priority": "HIGH",
+    "status": "PENDING"
+  }
+}
+
+Código:
+
+201 Created
+
+Obtener pedido por ID
+GET /api/orders/:id
 
 Ejemplo:
 
-POST /api/mocks/seed?qty=0
+GET /api/orders/507f1f77bcf86cd799439011
 
-Respuesta:
+Si existe:
 
-{
-  "status": "error",
-  "error": {
-    "code": "INVALID_MOCK_QUANTITY",
-    "message": "La cantidad de mocks debe ser un número entero mayor que cero.",
-    "details": null
-  }
-}
+200 OK
 
-Si se supera el máximo:
+Si no existe:
 
-POST /api/mocks/seed?qty=101
+404 Not Found
 
-se devuelve:
-
-MAX_MOCK_QUANTITY
-
-Manejo centralizado de errores
-La aplicación utiliza:
-
-src/errors/app.error.js
-
-La clase:
-
-AppError
-
-permite representar errores controlados de negocio.
-
-Los códigos y mensajes están centralizados en:
-
-src/errors/error.dictionary.js
-
-Algunos códigos disponibles son:
-
-USER_NOT_FOUND
-ORDER_NOT_FOUND
-INVALID_ORDER_STATUS
-INVALID_PRODUCT_DATA
-INVALID_PRODUCT_PRICE
-PRODUCT_NOT_FOUND
-INVALID_USER_DATA
-USER_ALREADY_EXISTS
-INVALID_MOCK_QUANTITY
-NEGATIVE_MOCK_QUANTITY
-MAX_MOCK_QUANTITY
-MOCK_SEED_ERROR
-DATABASE_ERROR
-
-Middleware global de errores
-El manejo de errores se centraliza en:
-
-src/middlewares/error.middleware.js
-
-Los errores controlados devuelven una respuesta consistente.
-
-Ejemplo:
+Error:
 
 {
   "status": "error",
   "error": {
-    "code": "PRODUCT_NOT_FOUND",
-    "message": "Producto no encontrado.",
-    "details": {
-      "id": "66b7c2f9a123456789abcdef"
-    }
+    "code": "ORDER_NOT_FOUND",
+    "message": "Pedido no encontrado.",
+    "details": {}
   }
 }
 
-Los errores inesperados devuelven:
+Actualizar estado de pedido
+PATCH /api/orders/:id/status
+
+Body:
 
 {
-  "status": "error",
-  "error": {
-    "code": "INTERNAL_SERVER_ERROR",
-    "message": "Ocurrió un error interno del servidor."
-  }
+  "status": "CONFIRMED"
 }
 
-Constantes del dominio
-Los valores permitidos se centralizan en:
+Estados disponibles:
 
-src/constants/index.js
-
-Roles
-ADMIN
-USER
-DRIVER
-
-Estados de producto
-AVAILABLE
-OUT_OF_STOCK
-DISCONTINUED
-
-Estados de pedido
 PENDING
 CONFIRMED
 IN_TRANSIT
 DELIVERED
 CANCELLED
 
-Prioridades de pedido
+Response:
+
+{
+  "status": "success",
+  "payload": {
+    "_id": "...",
+    "status": "CONFIRMED"
+  }
+}
+
+Código:
+
+200 OK
+
+Products API
+Base:
+
+/api/products
+
+Obtener productos
+GET /api/products
+
+También permite filtrar por disponibilidad:
+
+GET /api/products?available=true
+
+Obtener producto por ID
+GET /api/products/:id
+
+Crear producto
+POST /api/products
+
+Body:
+
+{
+  "name": "Producto de prueba",
+  "price": 1500.50,
+  "stock": 20,
+  "status": "AVAILABLE"
+}
+
+Campos obligatorios:
+
+name
+price
+
+El precio debe ser un número positivo.
+
+Estados disponibles:
+
+AVAILABLE
+OUT_OF_STOCK
+DISCONTINUED
+
+Mocks API
+La API de mocks permite generar datos de prueba para poblar la base de datos.
+
+Base:
+
+/api/mocks
+
+Los mocks pueden generar:
+
+Usuarios
+Repartidores
+Pedidos
+Entregas
+La lógica se encuentra principalmente en:
+
+src/services/mock.service.js
+
+La cantidad máxima permitida es:
+
+100
+
+Roles
+Los roles disponibles son:
+
+ADMIN
+USER
+DRIVER
+
+Definidos en:
+
+src/constants/index.js
+
+Estados de pedidos
+PENDING
+CONFIRMED
+IN_TRANSIT
+DELIVERED
+CANCELLED
+
+Prioridades de pedidos
 LOW
 MEDIUM
 HIGH
 
-Estados de entrega
+Estados de productos
+AVAILABLE
+OUT_OF_STOCK
+DISCONTINUED
+
+Estados de entregas
 PENDING
 ASSIGNED
 IN_TRANSIT
 DELIVERED
 FAILED
 
-Las constantes utilizan Object.freeze() para evitar modificaciones accidentales.
+Manejo de errores
+El proyecto utiliza errores personalizados mediante:
+
+src/errors/app.error.js
+
+y un diccionario centralizado:
+
+src/errors/error.dictionary.js
+
+El middleware global se encuentra en:
+
+src/middlewares/error.middleware.js
+
+Formato de error
+Las respuestas de error siguen una estructura común:
+
+{
+  "status": "error",
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Mensaje descriptivo.",
+    "details": {}
+  }
+}
+
+Errores disponibles
+Usuarios
+USER_NOT_FOUND
+INVALID_USER_DATA
+USER_ALREADY_EXISTS
+
+Pedidos
+ORDER_NOT_FOUND
+INVALID_ORDER_DATA
+INVALID_ORDER_STATUS
+
+Productos
+INVALID_PRODUCT_DATA
+INVALID_PRODUCT_PRICE
+PRODUCT_NOT_FOUND
+
+Mocks
+INVALID_MOCK_QUANTITY
+NEGATIVE_MOCK_QUANTITY
+MAX_MOCK_QUANTITY
+MOCK_SEED_ERROR
+
+Base de datos
+DATABASE_ERROR
 
 Logging
-ShipNow utiliza Winston como sistema centralizado de logging.
-
-La configuración se encuentra en:
+El proyecto dispone de un logger centralizado:
 
 src/config/logger.js
 
-Los niveles utilizados son:
+Se utilizan diferentes niveles de logging:
 
-fatal
-error
-warning
-info
-http
-debug
-
-Prioridad:
-
-fatal
-error
-warning
-info
-http
-debug
-
-Niveles de logging
-fatal
-Fallas críticas que pueden impedir el funcionamiento de la aplicación.
-
-error
-Errores inesperados o errores importantes del servidor.
-
-warning
-Situaciones anómalas o errores esperados de negocio.
-
-info
-Eventos generales importantes de la aplicación.
-
-http
-Eventos relacionados con solicitudes HTTP.
-
-debug
-Información detallada utilizada principalmente durante el desarrollo.
-
-Logging según el entorno
-El comportamiento depende de:
-
-NODE_ENV=
-
-En desarrollo se habilitan registros desde:
-
-debug
-
-En producción se utiliza:
-
-info
-
-Esto permite reducir los registros de bajo nivel en producción.
-
-Salida por consola
-Los mensajes incluyen:
-
-Timestamp.
-Nivel.
-Mensaje.
-Ejemplo:
-
-2026-08-28 17:15:47 [info] Conexión a MongoDB establecida
-2026-08-28 17:16:10 [warning] Cantidad de mocks inválida: 0
-2026-08-28 17:16:20 [error] Prueba de logger - nivel ERROR
-2026-08-28 17:16:20 [fatal] Prueba de logger - nivel FATAL
-
-Persistencia de errores
-Los niveles:
-
-error
-fatal
-
-se almacenan automáticamente en:
-
-logs/
-
-Los archivos utilizan el formato:
-
-error-YYYY-MM-DD.log
-
-Ejemplo:
-
-logs/error-2026-08-28.log
-
-Rotación de logs
-El proyecto utiliza:
-
-winston-daily-rotate-file
-
-Configuración:
-
-Rotación diaria.
-Conservación máxima de 14 días.
-Tamaño máximo de 10 MB por archivo.
-Logs y Git
-Los archivos generados por la aplicación no deben subirse al repositorio.
-
-Se excluye:
-
-logs/
-
-También se excluyen:
-
-node_modules/
-.env
-.env.local
-.env.*.local
-logs/
-
-Endpoint de prueba del logger
-Existe un endpoint para verificar que los niveles del logger funcionen correctamente:
-
-GET /api/mocks/logger-test
-
-Este endpoint es una herramienta interna de validación y no representa una funcionalidad real del negocio.
-
-Probar el logger
-Con el servidor ejecutándose:
-
-Invoke-RestMethod `
-  -Uri "http://localhost:8080/api/mocks/logger-test" `
-  -Method GET
-
-Respuesta esperada:
-
-{
-  "status": "success",
-  "message": "Prueba de logger ejecutada correctamente."
-}
-
-El endpoint genera mensajes para:
-
-debug
-http
 info
 warning
 error
 fatal
+debug
 
-Los niveles error y fatal deben quedar registrados en:
+Ejemplos:
 
-logs/error-YYYY-MM-DD.log
+Conexión a MongoDB establecida
 
-Endpoints principales
+POST /api/users - INVALID_USER_DATA
+
+Error al conectar con MongoDB
+
+Swagger
+La API dispone de documentación mediante Swagger/OpenAPI.
+
+La documentación se encuentra disponible en:
+
+http://localhost:8080/api/docs
+
+Desde Swagger UI se pueden consultar y probar los endpoints disponibles.
+
+Pruebas automatizadas
+Actualmente los tests cubren principalmente:
+
 Health
 GET /health
 
@@ -790,171 +746,123 @@ Users
 GET /api/users
 POST /api/users
 
-Products
-GET /api/products
-GET /api/products/:id
-POST /api/products
+Incluyendo:
 
-Mocks
-GET /api/mocks/users
-GET /api/mocks/drivers
-GET /api/mocks/all
-GET /api/mocks/logger-test
-POST /api/mocks/seed
+Creación exitosa
+Lista vacía
+Campos obligatorios
+Email duplicado
+Orders
+GET /api/orders
+POST /api/orders
+GET /api/orders/:id
+PATCH /api/orders/:id/status
 
-Swagger
-GET /api/docs
+Incluyendo:
 
-Resumen de endpoints
-Método	Endpoint	Descripción
-GET	/health	Verifica el estado de la API
-GET	/api/users	Obtiene usuarios
-POST	/api/users	Crea un usuario
-GET	/api/products	Obtiene productos
-GET	/api/products/:id	Obtiene un producto
-POST	/api/products	Crea un producto
-GET	/api/mocks/users	Genera usuarios mock
-GET	/api/mocks/drivers	Genera repartidores mock
-GET	/api/mocks/all	Genera datos mock relacionados
-GET	/api/mocks/logger-test	Prueba el sistema de logging
-POST	/api/mocks/seed	Inserta datos mock en MongoDB
-GET	/api/docs	Abre la documentación Swagger
+Creación exitosa
+Lista vacía
+Usuario inexistente
+Pedido inexistente
+Estado válido
+Estado inválido
+Persistencia en MongoDB
+Resultado actual:
 
-Ejemplos rápidos
-Levantar servidor
+18 passing
+
+Comandos disponibles
+Instalar dependencias:
+
+npm install
+
+Ejecutar en desarrollo:
+
 npm run dev
 
-Verificar API
-Invoke-RestMethod "http://localhost:8080/health"
+Ejecutar tests:
 
-Obtener usuarios
-Invoke-RestMethod "http://localhost:8080/api/users"
+npm test
 
-Obtener productos
-Invoke-RestMethod "http://localhost:8080/api/products"
+Flujo recomendado de desarrollo
+Configurar .env.
+Verificar conexión con MongoDB Atlas.
+Ejecutar:
+npm run dev
 
-Generar mocks
-Invoke-RestMethod "http://localhost:8080/api/mocks/all?qty=3"
+Verificar:
+GET http://localhost:8080/health
 
-Insertar mocks en MongoDB
-Invoke-RestMethod `
-  -Method POST `
-  "http://localhost:8080/api/mocks/seed?qty=5"
-
-Probar logger
-Invoke-RestMethod `
-  "http://localhost:8080/api/mocks/logger-test"
-
-Abrir Swagger
+Abrir Swagger:
 http://localhost:8080/api/docs
 
-Buenas prácticas
-El proyecto mantiene las siguientes reglas:
-
-Los Controllers no acceden directamente a MongoDB.
-La lógica de negocio se mantiene en los Services.
-El acceso a datos se realiza mediante Repositories.
-Los Models de Mongoose definen la estructura de los datos.
-Los errores de negocio utilizan AppError.
-Los códigos de error se centralizan en error.dictionary.js.
-Los valores de dominio se centralizan en constants/index.js.
-Las credenciales se mantienen fuera del repositorio.
-Los logs generados no se suben a Git.
-La documentación de la API se mantiene mediante Swagger.
-Flujo general de la aplicación
-Cliente HTTP
-     ↓
-Route
-     ↓
-Controller
-     ↓
-Service
-     ↓
-Repository
-     ↓
-Model
-     ↓
-MongoDB
-
-Para el sistema de mocks:
-
-Cliente HTTP
-     ↓
-Mock Route
-     ↓
-Mock Controller
-     ↓
-Mock Service
-     ↓
-Mock Repository
-     ↓
-MongoDB
-
-Los endpoints GET de mocks generan datos en memoria.
-
-El endpoint:
-
-POST /api/mocks/seed
-
-persiste los datos generados en MongoDB.
-
-Git
 Antes de realizar un commit:
+npm test
+
+Confirmar que todos los tests pasen.
+Estado actual del proyecto
+El backend cuenta actualmente con:
+
+ Express configurado
+ MongoDB Atlas
+ Mongoose
+ Configuración mediante variables de entorno
+ Separación de entorno development/test
+ Arquitectura Routes / Controllers / Services / Repositories
+ Modelos Mongoose
+ API de usuarios
+ API de pedidos
+ API de productos
+ API de mocks
+ Manejo centralizado de errores
+ Diccionario de errores
+ Logging
+ Swagger
+ Health check
+ Tests automatizados
+ Setup global de MongoDB para tests
+ Limpieza de base de datos de testing
+ 18 tests pasando
+Checklist antes del commit
+Ejecutar:
+
+npm test
+
+Resultado esperado:
+
+18 passing
+
+Verificar también que no se estén incluyendo credenciales:
 
 git status
 
-Agregar los cambios:
+Los archivos .env y .env.test no deben formar parte del commit.
+
+Finalmente:
 
 git add .
+git commit -m "test: complete users and orders API coverage"
 
-Verificar nuevamente:
+Licencia
+Proyecto desarrollado con fines educativos y/o de desarrollo de la plataforma ShipNow.
+
+
+### Antes de hacer el commit
+
+Como ya tenés:
+
+```text
+18 passing (4s)
+
+yo haría exactamente esta comprobación final:
 
 git status
 
-Realizar el commit:
+Si .env o .env.test aparecen como archivos para agregar, no hagas el commit todavía. Hay que corregir el .gitignore.
 
-git commit -m "docs: update README and Swagger documentation"
+Después:
 
-Subir los cambios:
-
-git push origin main
-
-Importante
-No subir nunca al repositorio:
-
-.env
-node_modules/
-logs/
-
-El archivo:
-
-.env.example
-
-sí debe mantenerse en el repositorio, pero sin credenciales reales.
-
-Estado actual del proyecto
-ShipNow cuenta actualmente con:
-
-Arquitectura por capas.
-Controllers.
-Services.
-Repositories.
-Models de Mongoose.
-MongoDB.
-Configuración mediante variables de entorno.
-Constantes de dominio.
-Manejo centralizado de errores.
-Sistema de mocking.
-Generación de usuarios y repartidores mock.
-Generación de pedidos y entregas relacionadas.
-Persistencia de datos de prueba.
-Logger centralizado con Winston.
-Niveles debug, http, info, warning, error y fatal.
-Persistencia de errores.
-Rotación automática de logs.
-Endpoint de prueba del logger.
-Documentación OpenAPI 3.0.3.
-Swagger UI.
-.gitignore configurado para evitar subir dependencias, credenciales y logs.
-ShipNow
-API REST desarrollada con Node.js, Express y MongoDB, organizada mediante arquitectura por capas y acompañada de documentación OpenAPI, sistema de mocking, manejo centralizado de errores y logging profesional.
+npm test
+git add .
+git status
+git commit -m "test: complete users and orders API coverage"

@@ -9,6 +9,11 @@
         message: 'Pedido no encontrado.'
     },
 
+        INVALID_ORDER_DATA: {
+        statusCode: 400,
+        message: 'El usuario y el total son campos obligatorios y deben ser válidos.'
+    },
+
     INVALID_ORDER_STATUS: {
         statusCode: 400,
         message: 'El estado del pedido no es válido.'
