@@ -1,7 +1,14 @@
 ﻿import { Router } from 'express';
+
 import { ProductController } from '../controllers/product.controller.js';
 
+
+
 const router = Router();
+
+
+
+
 
 /**
  * @swagger
@@ -9,77 +16,29 @@ const router = Router();
  *   get:
  *     tags:
  *       - Products
- *     summary: Obtener productos
- *     description: Devuelve todos los productos. Puede filtrarse por disponibilidad.
+ *     summary: Obtener todos los productos
+ *     description: Devuelve todos los productos registrados.
  *     parameters:
  *       - in: query
  *         name: available
- *         required: false
  *         schema:
  *           type: boolean
- *         description: Filtra productos disponibles cuando es true.
- *         example: true
+ *         description: Filtrar solo productos disponibles.
  *     responses:
  *       200:
  *         description: Productos obtenidos correctamente.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 payload:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Product'
- *       500:
- *         description: Error interno del servidor.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/', ProductController.getAll);
+router.get(
+    '/',
+    ProductController.getAll
+);
 
-/**
- * @swagger
- * /api/products/{id}:
- *   get:
- *     tags:
- *       - Products
- *     summary: Obtener un producto por ID
- *     description: Devuelve un producto específico.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID del producto.
- *         example: 66b7c2f9a123456789abcdef
- *     responses:
- *       200:
- *         description: Producto obtenido correctamente.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
- *       404:
- *         description: Producto no encontrado.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       500:
- *         description: Error interno del servidor.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-router.get('/:id', ProductController.getById);
+
+
+
+
+
+
 
 /**
  * @swagger
@@ -87,7 +46,7 @@ router.get('/:id', ProductController.getById);
  *   post:
  *     tags:
  *       - Products
- *     summary: Crear un producto
+ *     summary: Crear producto
  *     description: Registra un nuevo producto.
  *     requestBody:
  *       required: true
@@ -101,38 +60,106 @@ router.get('/:id', ProductController.getById);
  *             properties:
  *               name:
  *                 type: string
- *                 example: Producto de prueba
+ *                 example: Mouse Gamer
  *               price:
  *                 type: number
- *                 minimum: 0
- *                 example: 1500.50
+ *                 example: 35000
  *               stock:
- *                 type: integer
- *                 minimum: 0
+ *                 type: number
  *                 example: 20
- *               status:
- *                 type: string
- *                 example: AVAILABLE
  *     responses:
  *       201:
  *         description: Producto creado correctamente.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
+ */
+router.post(
+    '/',
+    ProductController.create
+);
+
+
+
+
+
+
+
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     tags:
+ *       - Products
+ *     summary: Obtener producto por ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Producto encontrado.
+ *       404:
+ *         description: Producto no encontrado.
+ */
+router.get(
+    '/:id',
+    ProductController.getById
+);
+
+
+
+
+
+
+
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   patch:
+ *     tags:
+ *       - Products
+ *     summary: Actualizar producto
+ *     description: Actualiza precio, stock u otros campos del producto.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Mouse Gamer RGB
+ *               price:
+ *                 type: number
+ *                 example: 40000
+ *               stock:
+ *                 type: number
+ *                 example: 15
+ *     responses:
+ *       200:
+ *         description: Producto actualizado correctamente.
  *       400:
  *         description: Datos inválidos.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       500:
- *         description: Error interno del servidor.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Producto no encontrado.
  */
-router.post('/', ProductController.create);
+router.patch(
+    '/:id',
+    ProductController.update
+);
+
+
+
+
+
 
 export default router;

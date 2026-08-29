@@ -3,6 +3,7 @@ import { MockController } from '../controllers/mock.controller.js';
 
 const router = Router();
 
+
 /**
  * @swagger
  * /api/mocks/users:
@@ -39,6 +40,8 @@ const router = Router();
  */
 router.get('/users', MockController.getUsers);
 
+
+
 /**
  * @swagger
  * /api/mocks/drivers:
@@ -74,6 +77,8 @@ router.get('/users', MockController.getUsers);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/drivers', MockController.getDrivers);
+
+
 
 /**
  * @swagger
@@ -126,30 +131,7 @@ router.get('/drivers', MockController.getDrivers);
  */
 router.get('/all', MockController.getAll);
 
-/**
- * @swagger
- * /api/mocks/logger-test:
- *   get:
- *     tags:
- *       - Logger
- *     summary: Probar los niveles del logger
- *     description: Herramienta interna de validación que genera mensajes en los niveles debug, http, info, warning, error y fatal. No representa una funcionalidad de negocio.
- *     responses:
- *       200:
- *         description: Prueba del logger ejecutada correctamente.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 message:
- *                   type: string
- *                   example: Prueba de logger ejecutada correctamente.
- */
-router.get('/logger-test', MockController.testLogger);
+
 
 /**
  * @swagger
@@ -159,6 +141,7 @@ router.get('/logger-test', MockController.testLogger);
  *       - Mocks
  *     summary: Insertar datos mock en MongoDB
  *     description: Genera e inserta usuarios, repartidores, pedidos y entregas de prueba en MongoDB.
+ *
  *     parameters:
  *       - in: query
  *         name: qty
@@ -168,7 +151,21 @@ router.get('/logger-test', MockController.testLogger);
  *           minimum: 1
  *           maximum: 100
  *           default: 1
- *         description: Cantidad de usuarios y pedidos a generar.
+ *         description: Cantidad de registros de prueba a generar.
+ *
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               qty:
+ *                 type: integer
+ *                 example: 10
+ *           example:
+ *             qty: 10
+ *
  *     responses:
  *       201:
  *         description: Datos de prueba insertados correctamente.
@@ -176,12 +173,14 @@ router.get('/logger-test', MockController.testLogger);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/MockSeedResponse'
+ *
  *       400:
  *         description: Cantidad inválida o fuera del máximo permitido.
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *
  *       500:
  *         description: Error durante la inserción de datos mock.
  *         content:
@@ -190,5 +189,7 @@ router.get('/logger-test', MockController.testLogger);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/seed', MockController.seed);
+
+
 
 export default router;

@@ -1,6 +1,9 @@
 ﻿import winston from 'winston';
 import 'winston-daily-rotate-file';
 
+import config from './env.config.js';
+
+
 const {
     combine,
     timestamp,
@@ -8,7 +11,10 @@ const {
     colorize
 } = winston.format;
 
+
+// Niveles personalizados ShipNow
 const customLevels = {
+
     levels: {
         fatal: 0,
         error: 1,
@@ -17,6 +23,7 @@ const customLevels = {
         http: 4,
         debug: 5
     },
+
     colors: {
         fatal: 'magenta',
         error: 'red',
@@ -25,14 +32,22 @@ const customLevels = {
         http: 'cyan',
         debug: 'blue'
     }
+
 };
+
 
 winston.addColors(customLevels.colors);
 
-const logFormat = printf(({ level, message, timestamp: time }) => {
-    return `${time} [${level}] ${message}`;
-});
 
+// Formato general
+const logFormat = printf(
+    ({ level, message, timestamp }) => {
+        return `${timestamp} [${level}] ${message}`;
+    }
+);
+
+
+// Formato consola
 const consoleFormat = combine(
     colorize(),
     timestamp({
@@ -41,6 +56,8 @@ const consoleFormat = combine(
     logFormat
 );
 
+
+// Formato archivos
 const fileFormat = combine(
     timestamp({
         format: 'YYYY-MM-DD HH:mm:ss'
@@ -48,32 +65,74 @@ const fileFormat = combine(
     logFormat
 );
 
+
+// Transportes
 const transports = [
+
+    // Consola
     new winston.transports.Console({
-        level: process.env.NODE_ENV === 'production'
-            ? 'info'
-            : 'debug',
-        format: consoleFormat
+
+        level:
+            config.NODE_ENV === 'production'
+                ? 'info'
+                : 'debug',
+
+        format:
+            consoleFormat
+
     }),
 
+
+    // Archivo rotativo solamente para errores
     new winston.transports.DailyRotateFile({
-        filename: 'logs/error-%DATE%.log',
-        datePattern: 'YYYY-MM-DD',
-        level: 'error',
-        maxFiles: '14d',
-        maxSize: '10m',
-        format: fileFormat
+
+        filename:
+            'logs/error-%DATE%.log',
+
+        datePattern:
+            'YYYY-MM-DD',
+
+        level:
+            'error',
+
+        maxFiles:
+            '14d',
+
+        maxSize:
+            '10m',
+
+        format:
+            fileFormat
+
     })
+
 ];
 
+
+// Logger principal
 const logger = winston.createLogger({
-    levels: customLevels.levels,
-    level: process.env.NODE_ENV === 'production'
-        ? 'info'
-        : 'debug',
-    format: fileFormat,
+
+    levels:
+        customLevels.levels,
+
+
+    level:
+        config.NODE_ENV === 'production'
+            ? 'info'
+            : 'debug',
+
+
+    format:
+        fileFormat,
+
+
     transports,
-    exitOnError: false
+
+
+    exitOnError:
+        false
+
 });
+
 
 export default logger;

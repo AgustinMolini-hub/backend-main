@@ -1,25 +1,53 @@
 ﻿import dotenv from 'dotenv';
 
-const envFile = process.env.NODE_ENV === 'test'
-    ? '.env.test'
-    : '.env';
+dotenv.config();
 
-dotenv.config({ path: envFile });
 
-const requiredEnvVars = ['PORT', 'MONGODB_URI', 'NODE_ENV'];
+const requiredEnv = [
+    'PORT',
+    'MONGODB_URI',
+    'NODE_ENV'
+];
 
-for (const envVar of requiredEnvVars) {
-    if (!process.env[envVar]) {
+
+requiredEnv.forEach((key) => {
+
+    if (!process.env[key]) {
+
         throw new Error(
-            `Missing required environment variable: ${envVar}`
+            `Falta variable de entorno requerida: ${key}`
         );
-    }
-}
 
-const config = Object.freeze({
-    port: Number(process.env.PORT),
-    mongoUri: process.env.MONGODB_URI,
-    nodeEnv: process.env.NODE_ENV
+    }
+
 });
 
-export { config };
+
+export const config = {
+
+    // formatos posibles usados en el proyecto
+
+    PORT:
+        process.env.PORT,
+
+    port:
+        process.env.PORT,
+
+
+    MONGODB_URI:
+        process.env.MONGODB_URI,
+
+    mongoUri:
+        process.env.MONGODB_URI,
+
+
+    NODE_ENV:
+        process.env.NODE_ENV,
+
+    nodeEnv:
+        process.env.NODE_ENV
+
+};
+
+
+export default config;

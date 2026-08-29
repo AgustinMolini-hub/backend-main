@@ -1,0 +1,8 @@
+### Actualizar producto
+PATCH http://localhost:8080/api/products/6a92e39a5716a537a34ee260
+Content-Type: application/json
+
+{
+    "price": 40000,
+    "stock": 15
+}

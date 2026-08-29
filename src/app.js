@@ -5,15 +5,42 @@ import productRouter from './routes/product.routes.js';
 import userRouter from './routes/user.routes.js';
 import mockRouter from './routes/mock.routes.js';
 import orderRouter from './routes/order.routes.js';
+import loggerRouter from './routes/logger.routes.js';
 
 
 import { swaggerSpec } from './docs/swagger.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 
+
 const app = express();
 
+
+// ==========================
+// Middlewares globales
+// ==========================
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+app.use(
+    express.urlencoded({
+        extended: true
+    })
+);
+
+
+// ==========================
+// Archivos públicos
+// ==========================
+
+app.use(
+    '/uploads',
+    express.static('uploads')
+);
+
+
+// ==========================
+// Swagger
+// ==========================
 
 app.use(
     '/api/docs',
@@ -21,18 +48,62 @@ app.use(
     swaggerUi.setup(swaggerSpec)
 );
 
-app.use('/api/products', productRouter);
-app.use('/api/users', userRouter);
-app.use('/api/orders', orderRouter);
-app.use('/api/mocks', mockRouter);
 
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'ok',
-        timestamp: new Date().toISOString()
-    });
-});
+// ==========================
+// Rutas API
+// ==========================
+
+app.use(
+    '/api/products',
+    productRouter
+);
+
+app.use(
+    '/api/users',
+    userRouter
+);
+
+app.use(
+    '/api/orders',
+    orderRouter
+);
+
+app.use(
+    '/api/mocks',
+    mockRouter
+);
+
+
+app.use(
+    '/api',
+    loggerRouter
+);
+
+
+// ==========================
+// Health check
+// ==========================
+
+app.get(
+    '/health',
+    (req,res)=>{
+
+        res.status(200).json({
+            status:'ok',
+            timestamp:new Date().toISOString()
+        });
+
+    }
+);
+
+
+// ==========================
+// Middleware global errores
+// SIEMPRE AL FINAL
+// ==========================
 
 app.use(errorMiddleware);
+
+
 
 export default app;
