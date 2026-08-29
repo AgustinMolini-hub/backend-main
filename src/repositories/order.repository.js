@@ -1,19 +1,13 @@
 ﻿import { OrderModel } from '../models/order.model.js';
 
 
-
 export class OrderRepository {
-
 
 
     async getAll() {
 
         return await OrderModel
             .find()
-            .populate(
-                'user',
-                'name email role'
-            )
             .select('-__v')
             .sort({
                 createdAt: -1
@@ -24,26 +18,14 @@ export class OrderRepository {
 
 
 
-
-
-
-
     async getById(id) {
 
         return await OrderModel
             .findById(id)
-            .populate(
-                'user',
-                'name email role'
-            )
             .select('-__v')
             .lean();
 
     }
-
-
-
-
 
 
 
@@ -55,15 +37,10 @@ export class OrderRepository {
 
 
 
-
-
-
-
     async updateStatus(
         id,
         status
     ) {
-
 
         return await OrderModel
             .findByIdAndUpdate(
@@ -80,20 +57,10 @@ export class OrderRepository {
                 }
 
             )
-            .populate(
-                'user',
-                'name email role'
-            )
             .select('-__v')
             .lean();
 
-
     }
-
-
-
-
-
 
 
 
@@ -102,14 +69,13 @@ export class OrderRepository {
         receiptData
     ) {
 
-
         return await OrderModel
             .findByIdAndUpdate(
 
                 id,
 
                 {
-                    receipt:receiptData
+                    receipt: receiptData
                 },
 
                 {
@@ -118,16 +84,10 @@ export class OrderRepository {
                 }
 
             )
-            .populate(
-                'user',
-                'name email role'
-            )
             .select('-__v')
             .lean();
 
-
     }
-
 
 
 }

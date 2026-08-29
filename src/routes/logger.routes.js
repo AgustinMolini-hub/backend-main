@@ -1,37 +1,35 @@
 import { Router } from 'express';
-
-import { testLogger } from '../controllers/logger.controller.js';
-
+import { MockController } from '../controllers/mock.controller.js';
 
 const router = Router();
 
-
-
 /**
  * @swagger
- * /api/logger-test:
+ * /api/logger:
  *   get:
  *     tags:
  *       - Logger
- *     summary: Prueba del sistema de logging
- *     description: Genera logs de todos los niveles configurados en Winston.
+ *     summary: Endpoint de prueba del sistema de logging
+ *     description: Ejecuta todos los niveles de Winston para verificar la configuración del logger.
  *     responses:
  *       200:
- *         description: Logger probado correctamente
+ *         description: Prueba de logger ejecutada correctamente.
  *         content:
  *           application/json:
- *             example:
- *               status: success
- *               message: Prueba de logger ejecutada correctamente
- *
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Prueba de logger ejecutada correctamente.
  */
-
-
 router.get(
-    '/logger-test',
-    testLogger
+    '/logger',
+    MockController.testLogger
 );
-
 
 
 export default router;

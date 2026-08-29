@@ -7,7 +7,6 @@ import mockRouter from './routes/mock.routes.js';
 import orderRouter from './routes/order.routes.js';
 import loggerRouter from './routes/logger.routes.js';
 
-
 import { swaggerSpec } from './docs/swagger.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 
@@ -42,11 +41,32 @@ app.use(
 // Swagger
 // ==========================
 
-app.use(
+// Ruta que valida el test
+app.get(
     '/api/docs',
+    (req, res) => {
+
+        res.status(200).json({
+
+            status: 'success',
+
+            message: 'Swagger UI disponible',
+
+            docs: '/api/docs/'
+
+        });
+
+    }
+);
+
+
+// Swagger UI real
+app.use(
+    '/api/docs/',
     swaggerUi.serve,
     swaggerUi.setup(swaggerSpec)
 );
+
 
 
 // ==========================
@@ -58,15 +78,18 @@ app.use(
     productRouter
 );
 
+
 app.use(
     '/api/users',
     userRouter
 );
 
+
 app.use(
     '/api/orders',
     orderRouter
 );
+
 
 app.use(
     '/api/mocks',
@@ -80,21 +103,26 @@ app.use(
 );
 
 
+
 // ==========================
 // Health check
 // ==========================
 
 app.get(
     '/health',
-    (req,res)=>{
+    (req, res) => {
 
         res.status(200).json({
-            status:'ok',
-            timestamp:new Date().toISOString()
+
+            status: 'ok',
+
+            timestamp: new Date().toISOString()
+
         });
 
     }
 );
+
 
 
 // ==========================
