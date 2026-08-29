@@ -1,6 +1,9 @@
-﻿import { UserRepository } from '../repositories/user.repository.js';
+﻿import fs from 'fs/promises';
+
+import { UserRepository } from '../repositories/user.repository.js';
 import { ROLES } from '../constants/index.js';
 import { AppError } from '../errors/app.error.js';
+import logger from '../config/logger.js';
 
 export class UserService {
   constructor() {
@@ -32,5 +35,103 @@ export class UserService {
       ...data,
       role
     });
+  }
+
+  async uploadDocument(id, file, documentType) {
+    const user = await this.userRepo.getById(id);
+
+    if (!user) {
+      await this.removeUploadedFile(file);
+
+      throw new AppError('USER_NOT_FOUND', {
+        userId: id
+      });
+    }
+
+    if (!file) {
+      throw new AppError('FILE_REQUIRED');
+    }
+
+    const allowedDocumentTypes = [
+      'DNI',
+      'LICENSE',
+      'OTHER'
+    ];
+
+    if (!allowedDocumentTypes.includes(documentType)) {
+      await this.removeUploadedFile(file);
+
+      throw new AppError('INVALID_DOCUMENT_TYPE', {
+        documentType
+      });
+    }
+
+    const documentData = {
+      originalName: file.originalname,
+      filename: file.filename,
+      path: file.path,
+      mimetype: file.mimetype,
+      size: file.size,
+      documentType,
+      uploadedAt: new Date()
+    };
+
+    try {
+      const updatedUser = await this.userRepo.addDocument(
+        id,
+        documentData
+      );
+
+      if (!updatedUser) {
+        await this.removeUploadedFile(file);
+
+        throw new AppError('FILE_SAVE_ERROR');
+      }
+
+      logger.info(
+        `Documento cargado correctamente para el usuario ${id}: ${file.originalname}`
+      );
+
+      return updatedUser;
+    } catch (error) {
+      await this.removeUploadedFile(file);
+
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      logger.error(
+        `Error al guardar documento para el usuario ${id}: ${error.message}`,
+        {
+          stack: error.stack
+        }
+      );
+
+      throw new AppError('FILE_SAVE_ERROR');
+    }
+  }
+
+  async removeUploadedFile(file) {
+    if (!file?.path) {
+      return;
+    }
+
+    try {
+      await fs.unlink(file.path);
+
+      logger.info(
+        `Archivo eliminado luego de una carga rechazada: ${file.path}`
+      );
+    } catch (error) {
+      // Si el archivo ya no existe, no necesitamos generar otro error.
+      if (error.code !== 'ENOENT') {
+        logger.error(
+          `No fue posible eliminar el archivo rechazado: ${file.path}`,
+          {
+            stack: error.stack
+          }
+        );
+      }
+    }
   }
 }

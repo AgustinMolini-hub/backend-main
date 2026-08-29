@@ -5,6 +5,7 @@ import {
     ORDER_PRIORITY
 } from '../constants/index.js';
 import { AppError } from '../errors/app.error.js';
+import logger from '../config/logger.js';
 
 export class OrderService {
     constructor() {
@@ -71,5 +72,39 @@ export class OrderService {
         }
 
         return await this.orderRepo.updateStatus(id, status);
+    }
+
+    async uploadReceipt(id, file) {
+        const order = await this.orderRepo.getById(id);
+
+        if (!order) {
+            throw new AppError('ORDER_NOT_FOUND', {
+                orderId: id
+            });
+        }
+
+        if (!file) {
+            throw new AppError('FILE_REQUIRED');
+        }
+
+        const receiptData = {
+            originalName: file.originalname,
+            filename: file.filename,
+            path: file.path,
+            mimetype: file.mimetype,
+            size: file.size,
+            uploadedAt: new Date()
+        };
+
+        const updatedOrder = await this.orderRepo.addReceipt(
+            id,
+            receiptData
+        );
+
+        logger.info(
+            `Comprobante subido correctamente para pedido ${id}: ${file.originalname}`
+        );
+
+        return updatedOrder;
     }
 }

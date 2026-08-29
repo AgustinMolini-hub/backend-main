@@ -28,4 +28,24 @@ export class UserController {
       next(error);
     }
   }
+
+  static async uploadDocument(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { documentType } = req.body;
+
+      const updatedUser = await userService.uploadDocument(
+        id,
+        req.file,
+        documentType
+      );
+
+      return res.status(200).json({
+        status: 'success',
+        payload: updatedUser
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

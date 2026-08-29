@@ -62,4 +62,22 @@ export class OrderController {
             next(error);
         }
     }
+
+    static async uploadReceipt(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            const order = await orderService.uploadReceipt(
+                id,
+                req.file
+            );
+
+            return res.status(200).json({
+                status: 'success',
+                payload: order
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

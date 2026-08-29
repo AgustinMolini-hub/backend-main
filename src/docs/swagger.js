@@ -8,8 +8,8 @@ const swaggerDefinition = {
         version: '1.0.0',
         description:
             'API REST de ShipNow desarrollada con Node.js, Express y MongoDB. ' +
-            'Permite gestionar usuarios y productos, generar datos mock para pruebas ' +
-            'y validar el sistema de logging.'
+            'Permite gestionar usuarios, productos, pedidos, comprobantes, ' +
+            'generar datos mock para pruebas y validar el sistema de logging.'
     },
 
     servers: [
@@ -30,13 +30,12 @@ const swaggerDefinition = {
         },
         {
             name: 'Orders',
-            description:
-                'Modelo de pedidos utilizado por el sistema de mocks. No posee endpoints CRUD independientes.'
+            description: 'Gestión de pedidos y comprobantes.'
         },
         {
             name: 'Deliveries',
             description:
-                'Modelo de entregas utilizado por el sistema de mocks. No posee endpoints CRUD independientes.'
+                'Modelo de entregas utilizado por el sistema de mocks.'
         },
         {
             name: 'Mocks',
@@ -51,6 +50,7 @@ const swaggerDefinition = {
 
     components: {
         schemas: {
+
             User: {
                 type: 'object',
                 required: ['name', 'email'],
@@ -70,7 +70,11 @@ const swaggerDefinition = {
                     },
                     role: {
                         type: 'string',
-                        enum: ['ADMIN', 'USER', 'DRIVER'],
+                        enum: [
+                            'ADMIN',
+                            'USER',
+                            'DRIVER'
+                        ],
                         example: 'USER'
                     },
                     createdAt: {
@@ -84,9 +88,13 @@ const swaggerDefinition = {
                 }
             },
 
+
             Product: {
                 type: 'object',
-                required: ['name', 'price'],
+                required: [
+                    'name',
+                    'price'
+                ],
                 properties: {
                     _id: {
                         type: 'string',
@@ -98,12 +106,10 @@ const swaggerDefinition = {
                     },
                     price: {
                         type: 'number',
-                        minimum: 0,
                         example: 1500.50
                     },
                     stock: {
                         type: 'integer',
-                        minimum: 0,
                         example: 20
                     },
                     status: {
@@ -114,39 +120,42 @@ const swaggerDefinition = {
                             'DISCONTINUED'
                         ],
                         example: 'AVAILABLE'
-                    },
-                    createdAt: {
+                    }
+                }
+            },
+
+
+            Receipt: {
+                type: 'object',
+                properties: {
+                    originalName: {
                         type: 'string',
-                        format: 'date-time'
+                        example: 'comprobante.png'
                     },
-                    updatedAt: {
+                    filename: {
+                        type: 'string',
+                        example: '1788003224670-488593803.png'
+                    },
+                    path: {
+                        type: 'string',
+                        example:
+                            'uploads/receipts/1788003224670-488593803.png'
+                    },
+                    mimetype: {
+                        type: 'string',
+                        example: 'image/png'
+                    },
+                    size: {
+                        type: 'number',
+                        example: 13728
+                    },
+                    uploadedAt: {
                         type: 'string',
                         format: 'date-time'
                     }
                 }
             },
 
-            OrderItem: {
-                type: 'object',
-                description:
-                    'Representa conceptualmente un item de pedido. Actualmente no existe un endpoint independiente para items.',
-                properties: {
-                    product: {
-                        type: 'string',
-                        example: '66b7c2f9a123456789abcdef'
-                    },
-                    quantity: {
-                        type: 'integer',
-                        minimum: 1,
-                        example: 2
-                    },
-                    price: {
-                        type: 'number',
-                        minimum: 0,
-                        example: 1500.50
-                    }
-                }
-            },
 
             Order: {
                 type: 'object',
@@ -157,8 +166,10 @@ const swaggerDefinition = {
                     },
                     user: {
                         type: 'string',
-                        description: 'ID del usuario propietario del pedido.',
-                        example: '66b7c2f9a123456789abcde1'
+                        description:
+                            'ID del usuario propietario del pedido.',
+                        example:
+                            '66b7c2f9a123456789abcde1'
                     },
                     status: {
                         type: 'string',
@@ -173,13 +184,21 @@ const swaggerDefinition = {
                     },
                     priority: {
                         type: 'string',
-                        enum: ['LOW', 'MEDIUM', 'HIGH'],
+                        enum: [
+                            'LOW',
+                            'MEDIUM',
+                            'HIGH'
+                        ],
                         example: 'MEDIUM'
                     },
                     total: {
                         type: 'number',
                         minimum: 0,
                         example: 12500.75
+                    },
+                    receipt: {
+                        $ref:
+                            '#/components/schemas/Receipt'
                     },
                     createdAt: {
                         type: 'string',
@@ -192,6 +211,7 @@ const swaggerDefinition = {
                 }
             },
 
+
             Delivery: {
                 type: 'object',
                 properties: {
@@ -201,13 +221,13 @@ const swaggerDefinition = {
                     },
                     order: {
                         type: 'string',
-                        description: 'ID del pedido asociado.',
-                        example: '66b7c2f9a123456789abcde1'
+                        example:
+                            '66b7c2f9a123456789abcde1'
                     },
                     driver: {
                         type: 'string',
-                        description: 'ID del usuario con rol DRIVER.',
-                        example: '66b7c2f9a123456789abcde2'
+                        example:
+                            '66b7c2f9a123456789abcde2'
                     },
                     status: {
                         type: 'string',
@@ -219,17 +239,10 @@ const swaggerDefinition = {
                             'FAILED'
                         ],
                         example: 'ASSIGNED'
-                    },
-                    createdAt: {
-                        type: 'string',
-                        format: 'date-time'
-                    },
-                    updatedAt: {
-                        type: 'string',
-                        format: 'date-time'
                     }
                 }
             },
+
 
             ErrorResponse: {
                 type: 'object',
@@ -243,7 +256,8 @@ const swaggerDefinition = {
                         properties: {
                             code: {
                                 type: 'string',
-                                example: 'INVALID_USER_DATA'
+                                example:
+                                    'INVALID_USER_DATA'
                             },
                             message: {
                                 type: 'string',
@@ -252,14 +266,13 @@ const swaggerDefinition = {
                             },
                             details: {
                                 nullable: true,
-                                description:
-                                    'Información adicional asociada al error.',
                                 example: null
                             }
                         }
                     }
                 }
             },
+
 
             SuccessResponse: {
                 type: 'object',
@@ -274,6 +287,7 @@ const swaggerDefinition = {
                     }
                 }
             },
+
 
             MockSeedResponse: {
                 type: 'object',
@@ -309,6 +323,7 @@ const swaggerDefinition = {
     }
 };
 
+
 const swaggerOptions = {
     definition: swaggerDefinition,
     apis: [
@@ -316,5 +331,6 @@ const swaggerOptions = {
         './src/app.js'
     ]
 };
+
 
 export const swaggerSpec = swaggerJsdoc(swaggerOptions);

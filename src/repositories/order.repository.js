@@ -33,4 +33,20 @@ export class OrderRepository {
             .select('-__v')
             .lean();
     }
+
+    async addReceipt(id, receiptData) {
+        return await OrderModel
+            .findByIdAndUpdate(
+                id,
+                {
+                    receipt: receiptData
+                },
+                {
+                    new: true,
+                    runValidators: true
+                }
+            )
+            .select('-__v')
+            .lean();
+    }
 }

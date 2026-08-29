@@ -9,7 +9,7 @@
         message: 'Pedido no encontrado.'
     },
 
-        INVALID_ORDER_DATA: {
+    INVALID_ORDER_DATA: {
         statusCode: 400,
         message: 'El usuario y el total son campos obligatorios y deben ser válidos.'
     },
@@ -67,5 +67,42 @@
     DATABASE_ERROR: {
         statusCode: 500,
         message: 'Ocurrió un error al acceder a la base de datos.'
+    },
+
+    // Errores relacionados con carga de archivos
+
+    FILE_REQUIRED: {
+        statusCode: 400,
+        message: 'El archivo es obligatorio.'
+    },
+
+    INVALID_FILE_TYPE: {
+        statusCode: 400,
+        message: 'El tipo de archivo no está permitido. Solo se aceptan archivos PDF, JPG, JPEG y PNG.'
+    },
+
+    INVALID_FILE_FIELD: {
+        statusCode: 400,
+        message: 'El campo del archivo no es válido.'
+    },
+
+    FILE_TOO_LARGE: {
+        statusCode: 400,
+        message: 'El archivo supera el tamaño máximo permitido de 5 MB.'
+    },
+
+    INVALID_DOCUMENT_TYPE: {
+        statusCode: 400,
+        message: 'El tipo de documento no es válido.'
+    },
+
+    INVALID_UPLOAD_TYPE: {
+        statusCode: 400,
+        message: 'El tipo de carga de archivo no es válido.'
+    },
+
+    FILE_SAVE_ERROR: {
+        statusCode: 500,
+        message: 'No fue posible guardar el archivo.'
     }
 });
