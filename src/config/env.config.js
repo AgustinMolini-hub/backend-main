@@ -1,6 +1,13 @@
 ﻿import dotenv from 'dotenv';
 
-dotenv.config();
+const envFile =
+    process.env.NODE_ENV === 'test'
+        ? '.env.test'
+        : '.env';
+
+dotenv.config({
+    path: envFile
+});
 
 
 const requiredEnv = [
@@ -10,17 +17,18 @@ const requiredEnv = [
 ];
 
 
-requiredEnv.forEach((key) => {
+const missingEnv = requiredEnv.filter(
+    (key) => !process.env[key]
+);
 
-    if (!process.env[key]) {
 
-        throw new Error(
-            `Falta variable de entorno requerida: ${key}`
-        );
+if (missingEnv.length > 0) {
 
-    }
+    throw new Error(
+        `Faltan variables de entorno requeridas: ${missingEnv.join(', ')}`
+    );
 
-});
+}
 
 
 export const config = {

@@ -2,7 +2,10 @@
 import fs from 'fs/promises';
 
 import { UserRepository } from '../repositories/user.repository.js';
-import { ROLES } from '../constants/index.js';
+import {
+    ROLES,
+    DOCUMENT_TYPES
+} from '../constants/index.js';
 import { AppError } from '../errors/app.error.js';
 import logger from '../config/logger.js';
 
@@ -75,6 +78,8 @@ export class UserService {
 
 
 
+
+
     async registerUser(data) {
 
 
@@ -102,7 +107,7 @@ export class UserService {
             throw new AppError(
                 'USER_ALREADY_EXISTS',
                 {
-                    email:data.email
+                    email: data.email
                 }
             );
 
@@ -158,7 +163,7 @@ export class UserService {
             throw new AppError(
                 'INVALID_USER_ID',
                 {
-                    userId:id
+                    userId: id
                 }
             );
 
@@ -202,7 +207,7 @@ export class UserService {
             throw new AppError(
                 'USER_NOT_FOUND',
                 {
-                    userId:id
+                    userId: id
                 }
             );
 
@@ -216,16 +221,8 @@ export class UserService {
 
 
 
-        const allowedDocumentTypes = [
-
-            'DNI',
-
-            'LICENSE',
-
-            'OTHER'
-
-        ];
-
+        const allowedDocumentTypes =
+            Object.values(DOCUMENT_TYPES);
 
 
 
@@ -294,6 +291,7 @@ export class UserService {
 
 
 
+
         try {
 
 
@@ -340,7 +338,7 @@ export class UserService {
 
 
 
-        } catch(error) {
+        } catch (error) {
 
 
 
@@ -350,7 +348,7 @@ export class UserService {
 
 
 
-            if(error instanceof AppError){
+            if (error instanceof AppError) {
 
                 throw error;
 
@@ -364,7 +362,7 @@ export class UserService {
             logger.error(
                 `Error al guardar documento para el usuario ${id}: ${error.message}`,
                 {
-                    stack:error.stack
+                    stack: error.stack
                 }
             );
 
@@ -394,7 +392,7 @@ export class UserService {
 
 
 
-        if(!file?.path){
+        if (!file?.path) {
 
             return;
 
@@ -419,17 +417,17 @@ export class UserService {
 
 
 
-        } catch(error) {
+        } catch (error) {
 
 
 
-            if(error.code !== 'ENOENT') {
+            if (error.code !== 'ENOENT') {
 
 
                 logger.error(
                     `No fue posible eliminar el archivo rechazado: ${file.path}`,
                     {
-                        stack:error.stack
+                        stack: error.stack
                     }
                 );
 

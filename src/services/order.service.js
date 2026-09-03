@@ -1,4 +1,5 @@
 ﻿import mongoose from 'mongoose';
+import fs from 'fs/promises';
 
 import { OrderRepository } from '../repositories/order.repository.js';
 import { UserRepository } from '../repositories/user.repository.js';
@@ -32,9 +33,6 @@ export class OrderService {
         return await this.orderRepo.getAll();
 
     }
-
-
-
 
 
 
@@ -103,6 +101,28 @@ export class OrderService {
 
 
 
+        /*
+         * Validamos el formato del ID antes de
+         * consultar el repositorio de usuarios.
+         *
+         * De esta manera evitamos que Mongoose
+         * genere un CastError y termine devolviendo
+         * un error 500 ante un ID malformado.
+         */
+        if (!mongoose.Types.ObjectId.isValid(data.user)) {
+
+
+            throw new AppError(
+                'INVALID_USER_ID',
+                {
+                    userId: data.user
+                }
+            );
+
+        }
+
+
+
 
         const user =
             await this.userRepo.getById(
@@ -127,7 +147,6 @@ export class OrderService {
 
 
 
-
         if (
 
             typeof data.total !== 'number' ||
@@ -144,8 +163,6 @@ export class OrderService {
             );
 
         }
-
-
 
 
 
@@ -185,6 +202,7 @@ export class OrderService {
                 status: ORDER_STATUS.PENDING
 
             });
+
 
 
 
@@ -309,7 +327,7 @@ export class OrderService {
 
 
 
-        } catch(error) {
+        } catch (error) {
 
 
 
@@ -341,6 +359,62 @@ export class OrderService {
     async uploadReceipt(id, file) {
 
 
+        const cleanupFile = async () => {
+
+
+            if (!file?.path) {
+
+                return;
+
+            }
+
+
+
+            try {
+
+
+                await fs.unlink(
+                    file.path
+                );
+
+
+            } catch (error) {
+
+
+                logger.warning(
+                    `No se pudo eliminar el archivo ${file.path}: ${error.message}`
+                );
+
+
+            }
+
+
+        };
+
+
+
+
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+
+
+            await cleanupFile();
+
+
+            throw new AppError(
+                'INVALID_ORDER_ID',
+                {
+                    orderId: id
+                }
+            );
+
+
+        }
+
+
+
+
+
         const order =
 
             await this.orderRepo.getById(id);
@@ -352,6 +426,9 @@ export class OrderService {
         if (!order) {
 
 
+            await cleanupFile();
+
+
             throw new AppError(
                 'ORDER_NOT_FOUND',
                 {
@@ -359,8 +436,8 @@ export class OrderService {
                 }
             );
 
-        }
 
+        }
 
 
 
@@ -372,6 +449,7 @@ export class OrderService {
             throw new AppError(
                 'FILE_REQUIRED'
             );
+
 
         }
 
@@ -434,6 +512,7 @@ export class OrderService {
         logger.info(
             `Comprobante subido correctamente para pedido ${id}: ${file.originalname}`
         );
+
 
 
 
