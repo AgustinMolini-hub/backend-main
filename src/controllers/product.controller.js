@@ -1,7 +1,8 @@
 ﻿import { ProductService } from '../services/product.service.js';
 
 
-const productService = new ProductService();
+const productService =
+    new ProductService();
 
 
 
@@ -15,14 +16,18 @@ export class ProductController {
 
 
             const {
-                available
+                available,
+                page,
+                limit
             } = req.query;
 
 
 
-            const products =
+            const result =
                 await productService.getAllProducts(
-                    available === 'true'
+                    available === 'true',
+                    page,
+                    limit
                 );
 
 
@@ -31,7 +36,11 @@ export class ProductController {
 
                 status: 'success',
 
-                payload: products
+                payload:
+                    result.data,
+
+                pagination:
+                    result.pagination
 
             });
 
@@ -72,15 +81,15 @@ export class ProductController {
 
             return res.status(200).json({
 
-                status:'success',
+                status: 'success',
 
-                payload:product
+                payload: product
 
             });
 
 
 
-        } catch(error) {
+        } catch (error) {
 
             next(error);
 
@@ -112,15 +121,15 @@ export class ProductController {
 
             return res.status(201).json({
 
-                status:'success',
+                status: 'success',
 
-                payload:product
+                payload: product
 
             });
 
 
 
-        } catch(error) {
+        } catch (error) {
 
             next(error);
 
@@ -160,15 +169,15 @@ export class ProductController {
 
             return res.status(200).json({
 
-                status:'success',
+                status: 'success',
 
-                payload:product
+                payload: product
 
             });
 
 
 
-        } catch(error) {
+        } catch (error) {
 
             next(error);
 

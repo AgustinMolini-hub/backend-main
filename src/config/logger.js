@@ -12,7 +12,10 @@ const {
 } = winston.format;
 
 
+// ==========================
 // Niveles personalizados ShipNow
+// ==========================
+
 const customLevels = {
 
     levels: {
@@ -36,54 +39,76 @@ const customLevels = {
 };
 
 
-winston.addColors(customLevels.colors);
+winston.addColors(
+    customLevels.colors
+);
 
 
+// ==========================
 // Formato general
+// ==========================
+
 const logFormat = printf(
-    ({ level, message, timestamp }) => {
+    ({
+        level,
+        message,
+        timestamp
+    }) => {
+
         return `${timestamp} [${level}] ${message}`;
+
     }
 );
 
 
+// ==========================
 // Formato consola
+// ==========================
+
 const consoleFormat = combine(
+
     colorize(),
+
     timestamp({
         format: 'YYYY-MM-DD HH:mm:ss'
     }),
+
     logFormat
+
 );
 
 
+// ==========================
 // Formato archivos
+// ==========================
+
 const fileFormat = combine(
+
     timestamp({
         format: 'YYYY-MM-DD HH:mm:ss'
     }),
+
     logFormat
+
 );
 
 
+// ==========================
 // Transportes
+// ==========================
+
 const transports = [
 
-    // Consola
     new winston.transports.Console({
 
         level:
-            config.NODE_ENV === 'production'
-                ? 'info'
-                : 'debug',
+            config.logLevel,
 
         format:
             consoleFormat
 
     }),
 
-
-    // Archivo rotativo solamente para errores
     new winston.transports.DailyRotateFile({
 
         filename:
@@ -109,25 +134,22 @@ const transports = [
 ];
 
 
+// ==========================
 // Logger principal
+// ==========================
+
 const logger = winston.createLogger({
 
     levels:
         customLevels.levels,
 
-
     level:
-        config.NODE_ENV === 'production'
-            ? 'info'
-            : 'debug',
-
+        config.logLevel,
 
     format:
         fileFormat,
 
-
     transports,
-
 
     exitOnError:
         false

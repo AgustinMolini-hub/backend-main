@@ -7,11 +7,7 @@ import upload from '../config/multer.config.js';
 import { setUploadType } from '../middlewares/upload-type.middleware.js';
 
 
-
 const router = Router();
-
-
-
 
 
 /**
@@ -20,22 +16,42 @@ const router = Router();
  *   get:
  *     tags:
  *       - Users
- *     summary: Obtener todos los usuarios
- *     description: Devuelve todos los usuarios registrados.
+ *     summary: Obtener usuarios
+ *     description: Devuelve los usuarios registrados utilizando paginación.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Número de página.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad de usuarios por página. Máximo 100.
  *     responses:
  *       200:
  *         description: Usuarios obtenidos correctamente.
+ *         content:
+ *           application/json:
+ *             example:
+ *               status: success
+ *               payload: []
+ *               pagination:
+ *                 page: 1
+ *                 limit: 10
+ *                 total: 0
+ *                 totalPages: 0
  */
 router.get(
     '/',
     UserController.getAll
 );
-
-
-
-
-
-
 
 
 /**
@@ -56,12 +72,6 @@ router.post(
     '/',
     UserController.create
 );
-
-
-
-
-
-
 
 
 /**
@@ -108,13 +118,6 @@ router.get(
 );
 
 
-
-
-
-
-
-
-
 /**
  * @swagger
  * /api/users/{id}/documents:
@@ -154,7 +157,6 @@ router.get(
  *                   - LICENSE
  *                   - OTHER
  *
- *
  *     responses:
  *
  *       200:
@@ -172,11 +174,6 @@ router.post(
     upload.single('file'),
     UserController.uploadDocument
 );
-
-
-
-
-
 
 
 export default router;

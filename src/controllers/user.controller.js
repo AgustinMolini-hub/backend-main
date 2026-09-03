@@ -1,27 +1,35 @@
 ﻿import { UserService } from '../services/user.service.js';
 
-
 const userService = new UserService();
 
 
-
 export class UserController {
-
 
 
     static async getAll(req, res, next) {
 
         try {
 
-            const users =
-                await userService.getAllUsers();
+            const {
+                page,
+                limit
+            } = req.query;
+
+
+            const result =
+                await userService.getAllUsers(
+                    page,
+                    limit
+                );
 
 
             return res.status(200).json({
 
                 status: 'success',
 
-                payload: users
+                payload: result.data,
+
+                pagination: result.pagination
 
             });
 
@@ -33,10 +41,6 @@ export class UserController {
         }
 
     }
-
-
-
-
 
 
     static async getById(req, res, next) {
@@ -67,11 +71,6 @@ export class UserController {
     }
 
 
-
-
-
-
-
     static async create(req, res, next) {
 
         try {
@@ -100,28 +99,18 @@ export class UserController {
     }
 
 
-
-
-
-
-
-
     static async uploadDocument(req, res, next) {
 
         try {
-
 
             const {
                 id
             } = req.params;
 
 
-
             const {
                 documentType
             } = req.body;
-
-
 
 
             const updatedUser =
@@ -136,7 +125,6 @@ export class UserController {
                 );
 
 
-
             return res.status(200).json({
 
                 status: 'success',
@@ -144,7 +132,6 @@ export class UserController {
                 payload: updatedUser
 
             });
-
 
 
         } catch (error) {

@@ -11,37 +11,27 @@ import { DOCUMENT_TYPES } from '../src/constants/index.js';
 
 describe('Users API', function () {
 
-
     this.timeout(15000);
 
-
     let testUser;
-
 
     const testFilesPath =
         path.join(process.cwd(), 'test', 'fixtures');
 
-
     const validPdfPath =
         path.join(testFilesPath, 'documento-test.pdf');
-
 
     const validPngPath =
         path.join(testFilesPath, 'documento-test.png');
 
-
     const invalidTxtPath =
         path.join(testFilesPath, 'documento-test.txt');
-
 
     const largeFilePath =
         path.join(testFilesPath, 'documento-grande.pdf');
 
 
-
-
     before(async function () {
-
 
         await fs.mkdir(
             testFilesPath,
@@ -108,10 +98,7 @@ describe('Users API', function () {
     });
 
 
-
-
     after(async function () {
-
 
         try {
 
@@ -132,10 +119,7 @@ describe('Users API', function () {
     });
 
 
-
-
     beforeEach(async function () {
-
 
         await UserModel.deleteMany({});
 
@@ -152,23 +136,17 @@ describe('Users API', function () {
     });
 
 
-
-
     afterEach(async function () {
-
 
         await UserModel.deleteMany({});
 
     });
 
 
-
-
     describe('GET /api/users', function () {
 
 
         it('debe devolver 200 y una lista de usuarios', async function () {
-
 
             const response =
                 await request(app)
@@ -213,13 +191,25 @@ describe('Users API', function () {
                     'usuario.test@test.com'
                 );
 
+
+            expect(response.body)
+                .to.have.property(
+                    'pagination'
+                );
+
+
+            expect(response.body.pagination)
+                .to.include({
+                    page: 1,
+                    limit: 10,
+                    total: 1,
+                    totalPages: 1
+                });
+
         });
 
 
-
-
         it('debe devolver una lista vacía cuando no existen usuarios', async function () {
-
 
             await UserModel.deleteMany({});
 
@@ -247,18 +237,120 @@ describe('Users API', function () {
             expect(response.body.payload)
                 .to.have.lengthOf(0);
 
+
+            expect(response.body)
+                .to.have.property(
+                    'pagination'
+                );
+
+
+            expect(response.body.pagination)
+                .to.include({
+                    page: 1,
+                    limit: 10,
+                    total: 0,
+                    totalPages: 0
+                });
+
+        });
+
+
+        it('debe paginar correctamente los usuarios', async function () {
+
+            await UserModel.create([
+                {
+                    name: 'Usuario Paginado 1',
+                    email: 'paginado1@test.com'
+                },
+                {
+                    name: 'Usuario Paginado 2',
+                    email: 'paginado2@test.com'
+                },
+                {
+                    name: 'Usuario Paginado 3',
+                    email: 'paginado3@test.com'
+                }
+            ]);
+
+
+            const response =
+                await request(app)
+                    .get('/api/users?page=1&limit=2');
+
+
+            expect(response.status)
+                .to.equal(200);
+
+
+            expect(response.body)
+                .to.have.property(
+                    'status',
+                    'success'
+                );
+
+
+            expect(response.body.payload)
+                .to.be.an('array');
+
+
+            expect(response.body.payload)
+                .to.have.lengthOf(2);
+
+
+            expect(response.body)
+                .to.have.property(
+                    'pagination'
+                );
+
+
+            expect(response.body.pagination)
+                .to.include({
+                    page: 1,
+                    limit: 2,
+                    total: 4,
+                    totalPages: 2
+                });
+
+        });
+
+
+        it('debe limitar a 100 la cantidad máxima de usuarios por página', async function () {
+
+            const response =
+                await request(app)
+                    .get('/api/users?page=1&limit=500');
+
+
+            expect(response.status)
+                .to.equal(200);
+
+
+            expect(response.body)
+                .to.have.property(
+                    'pagination'
+                );
+
+
+            expect(response.body.pagination.limit)
+                .to.equal(100);
+
+
+            expect(response.body.payload)
+                .to.be.an('array');
+
+
+            expect(response.body.payload.length)
+                .to.be.at.most(100);
+
         });
 
     });
-
-
 
 
     describe('POST /api/users', function () {
 
 
         it('debe crear un usuario correctamente', async function () {
-
 
             const response =
                 await request(app)
@@ -322,10 +414,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe devolver 400 cuando faltan datos obligatorios', async function () {
-
 
             const response =
                 await request(app)
@@ -370,10 +459,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe devolver 400 cuando falta el nombre', async function () {
-
 
             const response =
                 await request(app)
@@ -406,10 +492,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe devolver 400 cuando falta el email', async function () {
-
 
             const response =
                 await request(app)
@@ -442,10 +525,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe devolver 400 cuando el email ya existe', async function () {
-
 
             await UserModel.create({
 
@@ -508,13 +588,10 @@ describe('Users API', function () {
     });
 
 
-
-
     describe('POST /api/users/:id/documents', function () {
 
 
         it('debe subir correctamente un documento PDF', async function () {
-
 
             const response =
                 await request(app)
@@ -613,10 +690,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe subir correctamente un documento PNG', async function () {
-
 
             const response =
                 await request(app)
@@ -661,10 +735,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe devolver 400 cuando no se envía archivo', async function () {
-
 
             const response =
                 await request(app)
@@ -697,10 +768,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe rechazar un tipo de archivo no permitido', async function () {
-
 
             const response =
                 await request(app)
@@ -743,10 +811,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe rechazar un archivo que supera el límite de tamaño', async function () {
-
 
             const response =
                 await request(app)
@@ -782,10 +847,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe devolver 404 cuando el usuario no existe', async function () {
-
 
             const fakeUserId =
                 '507f1f77bcf86cd799439011';
@@ -826,10 +888,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe devolver 400 cuando el ID del usuario es inválido', async function () {
-
 
             const response =
                 await request(app)
@@ -866,10 +925,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe rechazar un tipo de documento inválido', async function () {
-
 
             const response =
                 await request(app)
@@ -906,10 +962,7 @@ describe('Users API', function () {
         });
 
 
-
-
         it('debe rechazar un campo de archivo incorrecto', async function () {
-
 
             const response =
                 await request(app)

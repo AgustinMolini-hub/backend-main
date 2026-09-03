@@ -4,18 +4,42 @@
 export class OrderRepository {
 
 
-    async getAll() {
+    async getAll(page = 1, limit = 10) {
 
-        return await OrderModel
-            .find()
-            .select('-__v')
-            .sort({
-                createdAt: -1
-            })
-            .lean();
+        const skip = (page - 1) * limit;
+
+
+        const [orders, total] = await Promise.all([
+
+            OrderModel
+                .find()
+                .select('-__v')
+                .sort({
+                    createdAt: -1
+                })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+
+            OrderModel.countDocuments()
+
+        ]);
+
+
+        return {
+
+            data: orders,
+
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+
+        };
 
     }
-
 
 
     async getById(id) {
@@ -28,13 +52,11 @@ export class OrderRepository {
     }
 
 
-
     async create(data) {
 
         return await OrderModel.create(data);
 
     }
-
 
 
     async updateStatus(
@@ -52,8 +74,8 @@ export class OrderRepository {
                 },
 
                 {
-                    new:true,
-                    runValidators:true
+                    new: true,
+                    runValidators: true
                 }
 
             )
@@ -61,7 +83,6 @@ export class OrderRepository {
             .lean();
 
     }
-
 
 
     async addReceipt(
@@ -79,8 +100,8 @@ export class OrderRepository {
                 },
 
                 {
-                    new:true,
-                    runValidators:true
+                    new: true,
+                    runValidators: true
                 }
 
             )

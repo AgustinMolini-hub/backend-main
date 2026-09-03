@@ -3,11 +3,7 @@
 import { ProductController } from '../controllers/product.controller.js';
 
 
-
 const router = Router();
-
-
-
 
 
 /**
@@ -16,28 +12,47 @@ const router = Router();
  *   get:
  *     tags:
  *       - Products
- *     summary: Obtener todos los productos
- *     description: Devuelve todos los productos registrados.
+ *     summary: Obtener productos
+ *     description: Devuelve los productos registrados utilizando paginación y permite filtrar por disponibilidad.
  *     parameters:
  *       - in: query
  *         name: available
  *         schema:
  *           type: boolean
  *         description: Filtrar solo productos disponibles.
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Número de página.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad de productos por página. Máximo 100.
  *     responses:
  *       200:
  *         description: Productos obtenidos correctamente.
+ *         content:
+ *           application/json:
+ *             example:
+ *               status: success
+ *               payload: []
+ *               pagination:
+ *                 page: 1
+ *                 limit: 10
+ *                 total: 0
+ *                 totalPages: 0
  */
 router.get(
     '/',
     ProductController.getAll
 );
-
-
-
-
-
-
 
 
 /**
@@ -77,12 +92,6 @@ router.post(
 );
 
 
-
-
-
-
-
-
 /**
  * @swagger
  * /api/products/{id}:
@@ -106,12 +115,6 @@ router.get(
     '/:id',
     ProductController.getById
 );
-
-
-
-
-
-
 
 
 /**
@@ -156,10 +159,6 @@ router.patch(
     '/:id',
     ProductController.update
 );
-
-
-
-
 
 
 export default router;

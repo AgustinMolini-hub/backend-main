@@ -26,15 +26,28 @@ export class OrderService {
     }
 
 
+    async getAllOrders(page = 1, limit = 10) {
+
+        const parsedPage = Number.parseInt(page, 10);
+        const parsedLimit = Number.parseInt(limit, 10);
+
+        const validPage =
+            Number.isInteger(parsedPage) && parsedPage > 0
+                ? parsedPage
+                : 1;
+
+        const validLimit =
+            Number.isInteger(parsedLimit) && parsedLimit > 0
+                ? Math.min(parsedLimit, 100)
+                : 10;
 
 
-    async getAllOrders() {
-
-        return await this.orderRepo.getAll();
+        return await this.orderRepo.getAll(
+            validPage,
+            validLimit
+        );
 
     }
-
-
 
 
     async getOrderById(id) {
@@ -53,10 +66,8 @@ export class OrderService {
         }
 
 
-
         const order =
             await this.orderRepo.getById(id);
-
 
 
         if (!order) {
@@ -72,16 +83,9 @@ export class OrderService {
         }
 
 
-
         return order;
 
     }
-
-
-
-
-
-
 
 
     async createOrder(data) {
@@ -100,15 +104,6 @@ export class OrderService {
         }
 
 
-
-        /*
-         * Validamos el formato del ID antes de
-         * consultar el repositorio de usuarios.
-         *
-         * De esta manera evitamos que Mongoose
-         * genere un CastError y termine devolviendo
-         * un error 500 ante un ID malformado.
-         */
         if (!mongoose.Types.ObjectId.isValid(data.user)) {
 
 
@@ -122,13 +117,10 @@ export class OrderService {
         }
 
 
-
-
         const user =
             await this.userRepo.getById(
                 data.user
             );
-
 
 
         if (!user) {
@@ -144,17 +136,10 @@ export class OrderService {
         }
 
 
-
-
-
         if (
-
             typeof data.total !== 'number' ||
-
             Number.isNaN(data.total) ||
-
             data.total < 0
-
         ) {
 
 
@@ -165,28 +150,19 @@ export class OrderService {
         }
 
 
-
-
-
         const priority =
 
             Object.values(
                 ORDER_PRIORITY
             ).includes(data.priority)
 
-            ?
+                ?
 
-            data.priority
+                data.priority
 
-            :
+                :
 
-            ORDER_PRIORITY.MEDIUM;
-
-
-
-
-
-
+                ORDER_PRIORITY.MEDIUM;
 
 
         const order =
@@ -204,34 +180,20 @@ export class OrderService {
             });
 
 
-
-
-
-
         logger.info(
             `Pedido creado correctamente: ${order._id}`
         );
 
 
-
         return order;
 
-
     }
-
-
-
-
-
-
-
 
 
     async updateStatus(id, status) {
 
 
         try {
-
 
 
             if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -247,17 +209,9 @@ export class OrderService {
             }
 
 
-
-
-
-
-
             const order =
 
                 await this.orderRepo.getById(id);
-
-
-
 
 
             if (!order) {
@@ -271,12 +225,6 @@ export class OrderService {
                 );
 
             }
-
-
-
-
-
-
 
 
             if (
@@ -296,11 +244,6 @@ export class OrderService {
             }
 
 
-
-
-
-
-
             const updatedOrder =
 
                 await this.orderRepo.updateStatus(
@@ -309,26 +252,15 @@ export class OrderService {
                 );
 
 
-
-
-
-
             logger.info(
                 `Estado del pedido ${id} actualizado a ${status}`
             );
 
 
-
-
-
             return updatedOrder;
 
 
-
-
-
         } catch (error) {
-
 
 
             logger.error(
@@ -339,21 +271,11 @@ export class OrderService {
             );
 
 
-
             throw error;
-
 
         }
 
-
     }
-
-
-
-
-
-
-
 
 
     async uploadReceipt(id, file) {
@@ -367,7 +289,6 @@ export class OrderService {
                 return;
 
             }
-
 
 
             try {
@@ -388,11 +309,7 @@ export class OrderService {
 
             }
 
-
         };
-
-
-
 
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -408,19 +325,12 @@ export class OrderService {
                 }
             );
 
-
         }
-
-
-
 
 
         const order =
 
             await this.orderRepo.getById(id);
-
-
-
 
 
         if (!order) {
@@ -436,11 +346,7 @@ export class OrderService {
                 }
             );
 
-
         }
-
-
-
 
 
         if (!file) {
@@ -450,13 +356,7 @@ export class OrderService {
                 'FILE_REQUIRED'
             );
 
-
         }
-
-
-
-
-
 
 
         const receiptData = {
@@ -485,14 +385,7 @@ export class OrderService {
             uploadedAt:
                 new Date()
 
-
         };
-
-
-
-
-
-
 
 
         const updatedOrder =
@@ -503,26 +396,14 @@ export class OrderService {
             );
 
 
-
-
-
-
-
-
         logger.info(
             `Comprobante subido correctamente para pedido ${id}: ${file.originalname}`
         );
 
 
-
-
-
-
         return updatedOrder;
 
-
     }
-
 
 
 }

@@ -1,9 +1,14 @@
 ﻿import { Router } from 'express';
+
 import { OrderController } from '../controllers/order.controller.js';
+
 import upload from '../config/multer.config.js';
+
 import { setUploadType } from '../middlewares/upload-type.middleware.js';
 
+
 const router = Router();
+
 
 /**
  * @swagger
@@ -11,12 +16,42 @@ const router = Router();
  *   get:
  *     tags:
  *       - Orders
- *     summary: Obtener todos los pedidos
+ *     summary: Obtener pedidos
+ *     description: Devuelve los pedidos registrados utilizando paginación.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Número de página.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad de pedidos por página. Máximo 100.
  *     responses:
  *       200:
  *         description: Pedidos obtenidos correctamente.
+ *         content:
+ *           application/json:
+ *             example:
+ *               status: success
+ *               payload: []
+ *               pagination:
+ *                 page: 1
+ *                 limit: 10
+ *                 total: 0
+ *                 totalPages: 0
  */
-router.get('/', OrderController.getAll);
+router.get(
+    '/',
+    OrderController.getAll
+);
 
 
 /**
@@ -54,7 +89,10 @@ router.get('/', OrderController.getAll);
  *       404:
  *         description: Usuario no encontrado.
  */
-router.post('/', OrderController.create);
+router.post(
+    '/',
+    OrderController.create
+);
 
 
 /**
@@ -76,7 +114,10 @@ router.post('/', OrderController.create);
  *       404:
  *         description: Pedido no encontrado.
  */
-router.get('/:id', OrderController.getById);
+router.get(
+    '/:id',
+    OrderController.getById
+);
 
 
 /**
@@ -117,7 +158,10 @@ router.get('/:id', OrderController.getById);
  *       404:
  *         description: Pedido no encontrado.
  */
-router.patch('/:id/status', OrderController.updateStatus);
+router.patch(
+    '/:id/status',
+    OrderController.updateStatus
+);
 
 
 /**

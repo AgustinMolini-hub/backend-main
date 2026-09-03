@@ -9,6 +9,7 @@ import loggerRouter from './routes/logger.routes.js';
 
 import { swaggerSpec } from './docs/swagger.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
+import { config } from './config/env.config.js';
 
 
 const app = express();
@@ -41,7 +42,6 @@ app.use(
 // Swagger
 // ==========================
 
-// Ruta que valida el test
 app.get(
     '/api/docs',
     (req, res) => {
@@ -60,7 +60,6 @@ app.get(
 );
 
 
-// Swagger UI real
 app.use(
     '/api/docs/',
     swaggerUi.serve,
@@ -68,9 +67,8 @@ app.use(
 );
 
 
-
 // ==========================
-// Rutas API
+// Rutas API principales
 // ==========================
 
 app.use(
@@ -91,17 +89,25 @@ app.use(
 );
 
 
-app.use(
-    '/api/mocks',
-    mockRouter
-);
+// ==========================
+// Rutas internas
+// Solo development y test
+// ==========================
+
+if (config.nodeEnv !== 'production') {
+
+    app.use(
+        '/api/mocks',
+        mockRouter
+    );
 
 
-app.use(
-    '/api',
-    loggerRouter
-);
+    app.use(
+        '/api',
+        loggerRouter
+    );
 
+}
 
 
 // ==========================
@@ -116,7 +122,14 @@ app.get(
 
             status: 'ok',
 
-            timestamp: new Date().toISOString()
+            environment:
+                config.nodeEnv,
+
+            uptime:
+                process.uptime(),
+
+            timestamp:
+                new Date().toISOString()
 
         });
 
@@ -124,14 +137,14 @@ app.get(
 );
 
 
-
 // ==========================
 // Middleware global errores
 // SIEMPRE AL FINAL
 // ==========================
 
-app.use(errorMiddleware);
-
+app.use(
+    errorMiddleware
+);
 
 
 export default app;

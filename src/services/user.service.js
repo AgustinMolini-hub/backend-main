@@ -10,7 +10,6 @@ import { AppError } from '../errors/app.error.js';
 import logger from '../config/logger.js';
 
 
-
 export class UserService {
 
 
@@ -21,16 +20,28 @@ export class UserService {
     }
 
 
+    async getAllUsers(page = 1, limit = 10) {
+
+        const parsedPage = Number.parseInt(page, 10);
+        const parsedLimit = Number.parseInt(limit, 10);
+
+        const validPage =
+            Number.isInteger(parsedPage) && parsedPage > 0
+                ? parsedPage
+                : 1;
+
+        const validLimit =
+            Number.isInteger(parsedLimit) && parsedLimit > 0
+                ? Math.min(parsedLimit, 100)
+                : 10;
 
 
-    async getAllUsers() {
-
-        return await this.userRepo.getAll();
+        return await this.userRepo.getAll(
+            validPage,
+            validLimit
+        );
 
     }
-
-
-
 
 
     async getUserById(id) {
@@ -48,10 +59,8 @@ export class UserService {
         }
 
 
-
         const user =
             await this.userRepo.getById(id);
-
 
 
         if (!user) {
@@ -66,18 +75,9 @@ export class UserService {
         }
 
 
-
         return user;
 
     }
-
-
-
-
-
-
-
-
 
 
     async registerUser(data) {
@@ -92,14 +92,10 @@ export class UserService {
         }
 
 
-
-
         const existingUser =
             await this.userRepo.getByEmail(
                 data.email
             );
-
-
 
 
         if (existingUser) {
@@ -114,16 +110,10 @@ export class UserService {
         }
 
 
-
-
-
         const role =
             Object.values(ROLES).includes(data.role)
                 ? data.role
                 : ROLES.USER;
-
-
-
 
 
         return await this.userRepo.create({
@@ -134,15 +124,7 @@ export class UserService {
 
         });
 
-
     }
-
-
-
-
-
-
-
 
 
     async uploadDocument(
@@ -152,12 +134,10 @@ export class UserService {
     ) {
 
 
-
         if (!mongoose.Types.ObjectId.isValid(id)) {
 
 
             await this.removeUploadedFile(file);
-
 
 
             throw new AppError(
@@ -167,12 +147,7 @@ export class UserService {
                 }
             );
 
-
         }
-
-
-
-
 
 
         if (!file) {
@@ -182,26 +157,17 @@ export class UserService {
                 'FILE_REQUIRED'
             );
 
-
         }
-
-
-
-
-
 
 
         const user =
             await this.userRepo.getById(id);
 
 
-
-
         if (!user) {
 
 
             await this.removeUploadedFile(file);
-
 
 
             throw new AppError(
@@ -211,29 +177,17 @@ export class UserService {
                 }
             );
 
-
         }
-
-
-
-
-
-
 
 
         const allowedDocumentTypes =
             Object.values(DOCUMENT_TYPES);
 
 
-
-
-
         if (!allowedDocumentTypes.includes(documentType)) {
 
 
-
             await this.removeUploadedFile(file);
-
 
 
             throw new AppError(
@@ -243,13 +197,7 @@ export class UserService {
                 }
             );
 
-
         }
-
-
-
-
-
 
 
         const documentData = {
@@ -281,19 +229,10 @@ export class UserService {
             uploadedAt:
                 new Date()
 
-
         };
 
 
-
-
-
-
-
-
-
         try {
-
 
 
             const updatedUser =
@@ -303,26 +242,17 @@ export class UserService {
                 );
 
 
-
-
-
             if (!updatedUser) {
 
 
                 await this.removeUploadedFile(file);
 
 
-
                 throw new AppError(
                     'FILE_SAVE_ERROR'
                 );
 
-
             }
-
-
-
-
 
 
             logger.info(
@@ -330,22 +260,13 @@ export class UserService {
             );
 
 
-
-
             return updatedUser;
-
-
-
 
 
         } catch (error) {
 
 
-
             await this.removeUploadedFile(file);
-
-
-
 
 
             if (error instanceof AppError) {
@@ -353,10 +274,6 @@ export class UserService {
                 throw error;
 
             }
-
-
-
-
 
 
             logger.error(
@@ -367,29 +284,16 @@ export class UserService {
             );
 
 
-
-
-
             throw new AppError(
                 'FILE_SAVE_ERROR'
             );
 
-
         }
-
 
     }
 
 
-
-
-
-
-
-
-
     async removeUploadedFile(file) {
-
 
 
         if (!file?.path) {
@@ -399,16 +303,10 @@ export class UserService {
         }
 
 
-
-
-
-
         try {
 
 
             await fs.unlink(file.path);
-
-
 
 
             logger.info(
@@ -416,9 +314,7 @@ export class UserService {
             );
 
 
-
         } catch (error) {
-
 
 
             if (error.code !== 'ENOENT') {
@@ -431,12 +327,9 @@ export class UserService {
                     }
                 );
 
-
             }
 
-
         }
-
 
     }
 

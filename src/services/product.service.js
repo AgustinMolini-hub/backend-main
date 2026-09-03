@@ -19,19 +19,63 @@ export class ProductService {
 
 
 
-    async getAllProducts(onlyAvailable = false) {
+    async getAllProducts(
+        onlyAvailable = false,
+        page = 1,
+        limit = 10
+    ) {
 
         const filter = {};
 
 
         if (onlyAvailable) {
 
-            filter.status = PRODUCT_STATUS.AVAILABLE;
+            filter.status =
+                PRODUCT_STATUS.AVAILABLE;
 
         }
 
 
-        return await this.productRepo.getAll(filter);
+        const parsedPage =
+            Number.parseInt(
+                page,
+                10
+            );
+
+
+        const parsedLimit =
+            Number.parseInt(
+                limit,
+                10
+            );
+
+
+        const validPage =
+            Number.isInteger(
+                parsedPage
+            ) &&
+            parsedPage > 0
+                ? parsedPage
+                : 1;
+
+
+        const validLimit =
+            Number.isInteger(
+                parsedLimit
+            ) &&
+            parsedLimit > 0
+                ? Math.min(
+                    parsedLimit,
+                    100
+                )
+                : 10;
+
+
+        return await this.productRepo.getAll(
+            filter,
+            validPage,
+            validLimit
+        );
 
     }
 
@@ -97,7 +141,10 @@ export class ProductService {
     async createProduct(data) {
 
 
-        if (!data.name || data.price === undefined) {
+        if (
+            !data.name ||
+            data.price === undefined
+        ) {
 
 
             throw new AppError(
@@ -128,7 +175,8 @@ export class ProductService {
 
 
 
-        const stock = data.stock ?? 0;
+        const stock =
+            data.stock ?? 0;
 
 
 
